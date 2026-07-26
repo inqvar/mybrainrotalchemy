@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Brainrot Alchemy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ===================== AUTH SCREEN ===================== -->
+  <section id="auth-screen">
+    <div class="auth-card">
+      <div class="logo">🧪</div>
+      <h1 class="display">BRAINROT ALCHEMY</h1>
+      <p class="auth-sub">Pick a username to save and load your progress. No password needed — this runs entirely in your browser.</p>
+      <input id="usernameInput" type="text" placeholder="Your username" maxlength="20" autocomplete="off">
+      <button id="enterBtn" class="primary-btn">🚪 Enter the Lab</button>
+      <p id="authError" class="auth-error"></p>
+      <p class="auth-hint">New username → creates an account. Existing username → loads your saved elements.</p>
+    </div>
+  </section>
+
+  <!-- ===================== GAME SCREEN ===================== -->
+  <section id="game-screen" class="hidden">
+
+    <header>
+      <div class="title-block">
+        <div class="logo">🧪</div>
+        <div>
+          <h1 class="display">BRAINROT ALCHEMY</h1>
+          <p class="tagline">like My Little Alchemy, but with way more aura</p>
+        </div>
+        <button id="info-btn" title="About this game">ℹ️</button>
+      </div>
+
+      <div class="header-right">
+        <div class="stat mono"><b id="count">6</b> / <span id="total">26</span> unlocked</div>
+
+        <div class="mode-switch" id="modeSwitch">
+          <div class="opt active plus" data-mode="plus">➕ COMBINE</div>
+          <div class="opt minus" data-mode="minus">➖ EXTRACT</div>
+        </div>
+
+        <div class="account-box">
+          <span class="account-label mono">👤 <span id="currentUserLabel">guest</span></span>
+          <button class="mini-btn" id="exportBtn" title="Download your save as users.json">⬇️ Export</button>
+          <label class="mini-btn" for="importFile" title="Load a users.json save file">⬆️ Import</label>
+          <input type="file" id="importFile" accept="application/json" hidden>
+          <button class="mini-btn" id="resetBtn" title="Reset this account's progress">↺ Reset</button>
+          <button class="mini-btn danger" id="logoutBtn" title="Log out">🚪 Logout</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div id="workspace-wrap" class="mode-plus">
+        <div id="workspace">
+          <div id="empty-hint">
+            <span>🫠</span>
+            Drag elements from your inventory on the right into this area, then drop them on each other.<br>
+            In <b>➕ Combine</b> mode you mix two elements. In <b>➖ Extract</b> mode you subtract one from the other.
+          </div>
+        </div>
+        <div id="book-btn" title="Recipe book">📖</div>
+        <div id="trash-zone" title="Drag an element here to delete it • hold 5s to clear the whole board">
+          <div class="trash-fill"></div>
+          <span class="trash-icon">🗑️</span>
+        </div>
+      </div>
+
+      <aside id="sidebar">
+        <h2>Your Inventory</h2>
+        <input id="search" type="text" placeholder="Search elements...">
+        <div id="inventory"></div>
+      </aside>
+    </main>
+  </section>
+</div>
+
+<div id="book-modal">
+  <div id="book-card">
+    <header>
+      <div class="book-head-row">
+        <h2>📖 Recipe Book</h2>
+        <button id="close-book">✕</button>
+      </div>
+    </header>
+    <div id="book-list"></div>
+    <div id="book-hint">Tip: every recipe also works backwards in ➖ Extract mode.</div>
+  </div>
+</div>
+
+<div id="info-modal">
+  <div id="info-card">
+    <header>
+      <div class="book-head-row">
+        <h2>ℹ️ About</h2>
+        <button id="close-info">✕</button>
+      </div>
+    </header>
+    <div id="info-body">
+      <p>Created by <b>DJ Niche</b> <span class="dim">(and Claude helped a little)</span></p>
+      <p>More of me: <a href="https://linktr.ee/djniche" target="_blank" rel="noopener noreferrer">linktr.ee/djniche</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
