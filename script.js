@@ -169,14 +169,6 @@ function playDiscoverySound(){
   playTone(880, t + 0.18, 0.22, "square", 0.14);
 }
 
-function playFailSound(){
-  const ctx = getAudioCtx();
-  if(!ctx) return;
-  const t = ctx.currentTime;
-  playTone(180, t, 0.16, "sawtooth", 0.1);
-  playTone(130, t + 0.07, 0.18, "sawtooth", 0.09);
-}
-
 function playDeleteSound(){
   const ctx = getAudioCtx();
   if(!ctx) return;
@@ -192,6 +184,13 @@ function playAchievementSound(){
   [520, 660, 780, 1040].forEach((freq, i)=>{
     playTone(freq, t + i*0.09, 0.2, "square", 0.13);
   });
+}
+
+function playUIClickSound(){
+  const ctx = getAudioCtx();
+  if(!ctx) return;
+  const t = ctx.currentTime;
+  playTone(760, t, 0.045, "sine", 0.045);
 }
 
 
@@ -239,11 +238,12 @@ function registerOrLogin(rawUsername){
   const key = username.toLowerCase();
 
   if(!DB.users[key]){
+    const isCheatCode = key === "6741";
     DB.users[key] = {
       displayName: username,
-      discovered: [...BASE_IDS],
-      discoveryOrder: [],
-      achievements: [],
+      discovered: isCheatCode ? Object.keys(ELEMENTS) : [...BASE_IDS],
+      discoveryOrder: isCheatCode ? RECIPES.map(r => r[2]) : [],
+      achievements: isCheatCode ? ACHIEVEMENTS.map(a => a.id) : [],
       createdAt: new Date().toISOString(),
     };
     saveDB(DB);
@@ -627,7 +627,6 @@ function tryCombine(tokenA, tokenB){
   }
 
   if(!resultId){
-    playFailSound();
     tokenA.classList.add("shake");
     tokenB.classList.add("shake");
     setTimeout(()=>{ tokenA.classList.remove("shake"); tokenB.classList.remove("shake"); }, 360);
@@ -697,6 +696,7 @@ const indexList = $("#index-list");
 const bookHint = $("#book-hint");
 
 $("#book-btn").addEventListener("click", ()=>{
+  playUIClickSound();
   renderBook();
   renderIndex();
   bookModal.classList.add("open");
@@ -771,6 +771,7 @@ const achievementsList = $("#achievements-list");
 const achievementsBtn = $("#achievements-btn");
 
 achievementsBtn.addEventListener("click", ()=>{
+  playUIClickSound();
   renderAchievements();
   achievementsModal.classList.add("open");
   achievementsBtn.classList.remove("has-new");
@@ -812,14 +813,178 @@ function checkAchievements(){
 
 
 /* =========================================================================
-   TRASH: hold 5s to clear the whole board
+   THEMES
+   ========================================================================= */
+const THEME_STORAGE_KEY = "brainrotAlchemyTheme";
+const UNLOCKED_THEMES_KEY = "brainrotAlchemyUnlockedThemes";
+
+const THEMES = [
+  { id:"purple", name:"Purple",    swatch:"linear-gradient(135deg, #150a21, #ff2e9a)", secret:false },
+  { id:"dark",   name:"Dark Grey", swatch:"linear-gradient(135deg, #17181b, #5ec8ff)", secret:false },
+  { id:"white",  name:"White",     swatch:"linear-gradient(135deg, #ffffff, #e91e8c)", secret:false },
+  { id:"mango",  name:"Mango",     swatch:"linear-gradient(135deg, #1f1004, #ff8a1e)", secret:true  },
+];
+
+let currentTheme = "purple";
+let unlockedThemes = [];
+
+function loadThemeState(){
+  try{
+    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) || "purple";
+    const savedUnlocked = JSON.parse(localStorage.getItem(UNLOCKED_THEMES_KEY) || "[]");
+    unlockedThemes = Array.isArray(savedUnlocked) ? savedUnlocked : [];
+    const theme = THEMES.find(t => t.id === savedTheme);
+    const allowed = theme && (!theme.secret || unlockedThemes.includes(theme.id));
+    applyTheme(allowed ? savedTheme : "purple");
+  }catch(e){
+    applyTheme("purple");
+  }
+}
+
+function applyTheme(themeId){
+  document.body.classList.remove("theme-dark", "theme-white", "theme-mango");
+  if(themeId !== "purple") document.body.classList.add("theme-" + themeId);
+  currentTheme = themeId;
+  try{ localStorage.setItem(THEME_STORAGE_KEY, themeId); }catch(e){}
+  toggleMangoRain(themeId === "mango");
+}
+
+const themeModal = $("#theme-modal");
+const themeList = $("#theme-list");
+const themeBtn = $("#theme-btn");
+
+themeBtn.addEventListener("click", ()=>{
+  playUIClickSound();
+  renderThemeList();
+  themeModal.classList.add("open");
+});
+$("#close-theme").addEventListener("click", ()=> themeModal.classList.remove("open"));
+themeModal.addEventListener("click", (e)=>{ if(e.target === themeModal) themeModal.classList.remove("open"); });
+
+function renderThemeList(){
+  themeList.innerHTML = "";
+  THEMES.forEach(t=>{
+    if(t.secret && !unlockedThemes.includes(t.id)) return;
+    const row = document.createElement("div");
+    row.className = "theme-row" + (currentTheme === t.id ? " active" : "");
+    row.innerHTML = `
+      <div class="theme-swatch" style="background:${t.swatch}"></div>
+      <div class="theme-name">${t.name}${t.secret ? " 🥭" : ""}</div>
+      <div class="theme-check">${currentTheme === t.id ? "✅" : ""}</div>
+    `;
+    row.addEventListener("click", ()=>{
+      playUIClickSound();
+      applyTheme(t.id);
+      renderThemeList();
+    });
+    themeList.appendChild(row);
+  });
+}
+
+
+/* =========================================================================
+   CODES (secret unlocks)
+   ========================================================================= */
+const codesModal = $("#codes-modal");
+const codesBtn = $("#codes-btn");
+const codeInput = $("#codeInput");
+const redeemBtn = $("#redeemBtn");
+const codesMessage = $("#codesMessage");
+
+codesBtn.addEventListener("click", ()=>{
+  playUIClickSound();
+  codeInput.value = "";
+  codesMessage.textContent = "";
+  codesMessage.className = "codes-message";
+  codesModal.classList.add("open");
+  codeInput.focus();
+});
+$("#close-codes").addEventListener("click", ()=> codesModal.classList.remove("open"));
+codesModal.addEventListener("click", (e)=>{ if(e.target === codesModal) codesModal.classList.remove("open"); });
+
+function redeemCode(){
+  const raw = codeInput.value.trim().toLowerCase();
+  if(!raw){
+    codesMessage.textContent = "Type a code first.";
+    codesMessage.className = "codes-message error";
+    return;
+  }
+
+  if(raw === "mango"){
+    if(!unlockedThemes.includes("mango")){
+      unlockedThemes.push("mango");
+      try{ localStorage.setItem(UNLOCKED_THEMES_KEY, JSON.stringify(unlockedThemes)); }catch(e){}
+    }
+    playAchievementSound();
+    applyTheme("mango");
+    codesMessage.textContent = "🥭 Mango theme unlocked and applied!";
+    codesMessage.className = "codes-message success";
+  } else {
+    codesMessage.textContent = "That code doesn't do anything... yet.";
+    codesMessage.className = "codes-message error";
+  }
+  codeInput.value = "";
+}
+
+redeemBtn.addEventListener("click", redeemCode);
+codeInput.addEventListener("keydown", (e)=>{ if(e.key === "Enter") redeemCode(); });
+
+
+/* =========================================================================
+   MANGO RAIN (mango theme background effect)
+   ========================================================================= */
+let mangoRainInterval = null;
+let mangoRainContainer = null;
+
+function ensureMangoContainer(){
+  if(!mangoRainContainer){
+    mangoRainContainer = document.createElement("div");
+    mangoRainContainer.id = "mango-rain";
+    document.body.appendChild(mangoRainContainer);
+  }
+}
+
+function spawnMango(){
+  if(!mangoRainContainer) return;
+  const mango = document.createElement("span");
+  mango.className = "mango-drop";
+  mango.textContent = "🥭";
+  const startSize = 30 + Math.random() * 34; // 30-64px
+  const duration = 6 + Math.random() * 5;    // 6-11s
+  const left = Math.random() * 96;           // vw
+  mango.style.left = left + "vw";
+  mango.style.fontSize = startSize + "px";
+  mango.style.animationDuration = duration + "s";
+  mangoRainContainer.appendChild(mango);
+  setTimeout(()=> mango.remove(), duration * 1000 + 200);
+}
+
+function startMangoRain(){
+  if(mangoRainInterval) return;
+  ensureMangoContainer();
+  mangoRainInterval = setInterval(spawnMango, 450);
+  for(let i=0;i<6;i++) setTimeout(spawnMango, i * 150);
+}
+
+function stopMangoRain(){
+  if(mangoRainInterval){ clearInterval(mangoRainInterval); mangoRainInterval = null; }
+  if(mangoRainContainer){ mangoRainContainer.remove(); mangoRainContainer = null; }
+}
+
+function toggleMangoRain(on){
+  if(on) startMangoRain(); else stopMangoRain();
+}
+
+
+/* =========================================================================
+   TRASH: hold 2.5s to clear the whole board
    ========================================================================= */
 let holdTimeout = null;
 
 trashZone.addEventListener("pointerdown", (e)=>{
   e.preventDefault();
   trashZone.classList.add("holding");
-  holdTimeout = setTimeout(clearBoard, 5000);
+  holdTimeout = setTimeout(clearBoard, 2500);
 });
 
 function cancelHold(){
@@ -850,7 +1015,7 @@ function clearBoard(){
    INFO MODAL
    ========================================================================= */
 const infoModal = $("#info-modal");
-$("#info-btn").addEventListener("click", ()=> infoModal.classList.add("open"));
+$("#info-btn").addEventListener("click", ()=>{ playUIClickSound(); infoModal.classList.add("open"); });
 $("#close-info").addEventListener("click", ()=> infoModal.classList.remove("open"));
 infoModal.addEventListener("click", (e)=>{ if(e.target === infoModal) infoModal.classList.remove("open"); });
 
@@ -859,6 +1024,7 @@ infoModal.addEventListener("click", (e)=>{ if(e.target === infoModal) infoModal.
    INIT
    ========================================================================= */
 (function init(){
+  loadThemeState();
   if(tryResumeSession()){
     showGameScreen();
   }else{

@@ -65,9 +65,13 @@
             In <b>➕ Combine</b> mode you mix two elements. In <b>➖ Extract</b> mode you subtract one from the other.
           </div>
         </div>
-        <div id="book-btn" title="Recipe book">📖</div>
-        <div id="achievements-btn" title="Achievements">🏆</div>
-        <div id="trash-zone" title="Drag an element here to delete it • hold 5s to clear the whole board">
+        <div id="toolbar-buttons">
+          <div id="book-btn" class="toolbar-btn" title="Recipe book">📖</div>
+          <div id="achievements-btn" class="toolbar-btn" title="Achievements">🏆</div>
+          <div id="theme-btn" class="toolbar-btn" title="Themes">🎨</div>
+          <div id="codes-btn" class="toolbar-btn" title="Codes">🔑</div>
+        </div>
+        <div id="trash-zone" title="Drag an element here to delete it • hold 2.5s to clear the whole board">
           <div class="trash-fill"></div>
           <span class="trash-icon">🗑️</span>
         </div>
@@ -109,6 +113,37 @@
       </div>
     </header>
     <div id="achievements-list"></div>
+  </div>
+</div>
+
+<div id="theme-modal">
+  <div id="theme-card">
+    <header>
+      <div class="book-head-row">
+        <h2>🎨 Themes</h2>
+        <button id="close-theme">✕</button>
+      </div>
+    </header>
+    <div id="theme-list"></div>
+  </div>
+</div>
+
+<div id="codes-modal">
+  <div id="codes-card">
+    <header>
+      <div class="book-head-row">
+        <h2>🔑 Codes</h2>
+        <button id="close-codes">✕</button>
+      </div>
+    </header>
+    <div id="codes-body">
+      <p class="codes-sub">Got a code? Enter it below.</p>
+      <div class="codes-row">
+        <input id="codeInput" type="text" placeholder="Enter code..." autocomplete="off">
+        <button id="redeemBtn" class="mini-btn">Redeem</button>
+      </div>
+      <p id="codesMessage" class="codes-message"></p>
+    </div>
   </div>
 </div>
 

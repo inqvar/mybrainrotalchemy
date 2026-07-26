@@ -13,18 +13,82 @@
   --chip2: #f2fff0;
   --chip3: #eefcff;
   --chip4: #fffaf0;
+  --glow1: rgba(255,46,154,0.16);
+  --glow2: rgba(51,255,240,0.14);
 }
+
+/* ---------- Theme: Dark Grey ---------- */
+body.theme-dark{
+  --bg: #17181b;
+  --bg2: #202226;
+  --panel: #1c1e22;
+  --ink: #eef0f2;
+  --ink-dim: #9aa1a8;
+  --outline: #0a0b0c;
+  --magenta: #5ec8ff;
+  --lime: #8be28f;
+  --cyan: #ff9f5c;
+  --yellow: #f2c94c;
+  --chip1: #f4f5f6;
+  --chip2: #eef1f3;
+  --chip3: #e9edf0;
+  --chip4: #f7f6f2;
+  --glow1: rgba(94,200,255,0.12);
+  --glow2: rgba(255,159,92,0.10);
+}
+
+/* ---------- Theme: White ---------- */
+body.theme-white{
+  --bg: #f3f1f8;
+  --bg2: #ffffff;
+  --panel: #ffffff;
+  --ink: #1c1330;
+  --ink-dim: #6b6280;
+  --outline: #1c1330;
+  --magenta: #e91e8c;
+  --lime: #1f9d55;
+  --cyan: #0891b2;
+  --yellow: #f5a623;
+  --chip1: #fff1fb;
+  --chip2: #f0fbf4;
+  --chip3: #eef8fb;
+  --chip4: #fff8ec;
+  --glow1: rgba(233,30,140,0.08);
+  --glow2: rgba(8,145,178,0.07);
+}
+
+/* ---------- Theme: Mango (secret) ---------- */
+body.theme-mango{
+  --bg: #1f1004;
+  --bg2: #2a1607;
+  --panel: #241206;
+  --ink: #fff3e6;
+  --ink-dim: #d9a875;
+  --outline: #140900;
+  --magenta: #ff8a1e;
+  --lime: #ffb703;
+  --cyan: #ff5a1e;
+  --yellow: #ffcf5c;
+  --chip1: #fff3e0;
+  --chip2: #ffe9cf;
+  --chip3: #ffe0c2;
+  --chip4: #fff0e6;
+  --glow1: rgba(255,138,30,0.18);
+  --glow2: rgba(255,207,92,0.14);
+}
+
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;height:100%;}
 body{
   background:
-    radial-gradient(circle at 12% 8%, rgba(255,46,154,0.16), transparent 40%),
-    radial-gradient(circle at 88% 92%, rgba(51,255,240,0.14), transparent 42%),
+    radial-gradient(circle at 12% 8%, var(--glow1), transparent 40%),
+    radial-gradient(circle at 88% 92%, var(--glow2), transparent 42%),
     var(--bg);
   color:var(--ink);
   font-family:'Space Grotesk', sans-serif;
   min-height:100vh;
   overflow-x:hidden;
+  transition:background-color .25s ease;
 }
 .display{font-family:'Bungee', sans-serif; letter-spacing:0.5px;}
 .mono{font-family:'JetBrains Mono', monospace;}
@@ -32,11 +96,34 @@ body{
 
 /* ---------- App shell ---------- */
 #app{
+  position:relative;
+  z-index:1;
   display:flex;
   flex-direction:column;
   min-height:100vh;
   padding:14px;
   gap:12px;
+}
+
+/* ---------- Mango rain (mango theme only) ---------- */
+#mango-rain{
+  position:fixed;
+  inset:0;
+  overflow:hidden;
+  pointer-events:none;
+  z-index:50;
+}
+.mango-drop{
+  position:absolute;
+  top:-60px;
+  animation-name:mangoFall;
+  animation-timing-function:linear;
+  animation-fill-mode:forwards;
+  will-change:transform, opacity;
+}
+@keyframes mangoFall{
+  0%{ transform:translateY(0) scale(1); opacity:1; }
+  100%{ transform:translateY(112vh) scale(0.35); opacity:0.4; }
 }
 
 /* ---------- Auth screen ---------- */
@@ -300,18 +387,19 @@ main{
   position:absolute;
   left:0; right:0; bottom:0;
   height:0%;
-  background:linear-gradient(180deg, rgba(255,46,154,0.85), rgba(255,46,154,0.55));
+  background:var(--magenta);
+  opacity:0.75;
   transition:height .15s ease;
 }
 #trash-zone.holding .trash-fill{
   height:100%;
-  transition:height 5s linear;
+  transition:height 2.5s linear;
 }
 #trash-zone .trash-icon{ position:relative; z-index:2; pointer-events:none; }
 #trash-zone.drag-over{
   transform:scale(1.18);
   box-shadow:3px 3px 0 var(--magenta);
-  background:#2a0f1c;
+  background:var(--outline);
 }
 @keyframes trashBoom{
   0%{ transform:scale(1) rotate(0); }
@@ -463,37 +551,30 @@ main{
   100%{ transform:translateY(70px) rotate(360deg); opacity:0; }
 }
 
-/* ---------- Recipe book ---------- */
-#book-btn{
+/* ---------- Floating toolbar (book / achievements / theme / codes) ---------- */
+#toolbar-buttons{
   position:absolute;
   bottom:16px; left:16px;
+  display:flex;
+  gap:12px;
+  z-index:20;
+}
+.toolbar-btn{
   width:56px; height:56px;
   border-radius:50%;
-  background:var(--yellow);
   border:3px solid var(--outline);
   box-shadow:3px 3px 0 var(--outline);
   font-size:24px;
   display:flex; align-items:center; justify-content:center;
   cursor:pointer;
-  z-index:20;
 }
-#book-btn:active{ transform:translate(2px,2px); box-shadow:1px 1px 0 var(--outline); }
+.toolbar-btn:active{ transform:translate(2px,2px); box-shadow:1px 1px 0 var(--outline); }
 
-#achievements-btn{
-  position:absolute;
-  bottom:16px; left:84px;
-  width:56px; height:56px;
-  border-radius:50%;
-  background:var(--cyan);
-  border:3px solid var(--outline);
-  box-shadow:3px 3px 0 var(--outline);
-  font-size:24px;
-  display:flex; align-items:center; justify-content:center;
-  cursor:pointer;
-  z-index:20;
-}
-#achievements-btn:active{ transform:translate(2px,2px); box-shadow:1px 1px 0 var(--outline); }
+#book-btn{ background:var(--yellow); order:1; }
+#achievements-btn{ background:var(--cyan); order:2; }
 #achievements-btn.has-new{ animation:trashBoom 0.6s ease infinite; }
+#theme-btn{ background:var(--lime); order:3; }
+#codes-btn{ background:var(--magenta); order:999; }
 
 #book-modal{
   position:fixed; inset:0;
@@ -526,7 +607,7 @@ main{
 }
 .book-head-row{ display:flex; align-items:center; justify-content:space-between; }
 #book-card h2{ margin:0; font-size:15px; color:var(--lime); font-family:'Bungee',sans-serif; }
-#close-book, #close-achievements, #close-info{
+#close-book, #close-achievements, #close-info, #close-theme, #close-codes{
   background:var(--magenta);
   border:2px solid var(--outline);
   color:#1a0113;
@@ -665,6 +746,119 @@ main{
 .achievement-row.locked{ opacity:0.4; filter:grayscale(0.6); }
 .achievement-row.unlocked .ach-emoji{ background:var(--yellow); color:var(--outline); }
 
+/* ---------- Theme picker ---------- */
+#theme-modal{
+  position:fixed; inset:0;
+  background:rgba(10,5,18,0.72);
+  display:none;
+  align-items:center; justify-content:center;
+  z-index:100;
+  padding:20px;
+}
+#theme-modal.open{ display:flex; }
+#theme-card{
+  background:var(--panel);
+  border:3px solid var(--outline);
+  border-radius:22px;
+  box-shadow:6px 6px 0 var(--outline);
+  width:100%;
+  max-width:400px;
+  max-height:80vh;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+#theme-card header{
+  background:var(--panel);
+  border:none;
+  border-bottom:3px solid var(--outline);
+  border-radius:0;
+  box-shadow:none;
+  padding:14px 18px;
+}
+#theme-card h2{ margin:0; font-size:15px; color:var(--lime); font-family:'Bungee',sans-serif; }
+#theme-list{
+  padding:14px 18px 20px;
+  overflow-y:auto;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.theme-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  background:var(--bg2);
+  border:2px solid var(--outline);
+  border-radius:14px;
+  padding:12px 14px;
+  cursor:pointer;
+  transition:transform .1s ease;
+}
+.theme-row:hover{ transform:translateY(-1px); }
+.theme-row.active{ box-shadow:0 0 0 3px var(--magenta) inset; }
+.theme-swatch{
+  width:40px; height:40px;
+  border-radius:11px;
+  border:2px solid var(--outline);
+  flex-shrink:0;
+}
+.theme-row .theme-name{ flex:1; font-size:13px; font-weight:700; color:var(--ink); }
+.theme-row .theme-check{ font-size:16px; color:var(--lime); width:20px; text-align:center; }
+
+/* ---------- Codes ---------- */
+#codes-modal{
+  position:fixed; inset:0;
+  background:rgba(10,5,18,0.72);
+  display:none;
+  align-items:center; justify-content:center;
+  z-index:100;
+  padding:20px;
+}
+#codes-modal.open{ display:flex; }
+#codes-card{
+  background:var(--panel);
+  border:3px solid var(--outline);
+  border-radius:22px;
+  box-shadow:6px 6px 0 var(--outline);
+  width:100%;
+  max-width:380px;
+  overflow:hidden;
+}
+#codes-card header{
+  background:var(--panel);
+  border:none;
+  border-bottom:3px solid var(--outline);
+  border-radius:0;
+  box-shadow:none;
+  padding:14px 18px;
+}
+#codes-card h2{ margin:0; font-size:15px; color:var(--lime); font-family:'Bungee',sans-serif; }
+#codes-body{ padding:18px 20px 22px; }
+.codes-sub{ font-size:12.5px; color:var(--ink-dim); margin:0 0 12px; }
+.codes-row{ display:flex; gap:8px; }
+#codeInput{
+  flex:1;
+  padding:10px 12px;
+  border-radius:10px;
+  border:2px solid var(--outline);
+  background:var(--bg2);
+  color:var(--ink);
+  font-family:'Space Grotesk',sans-serif;
+  font-size:13px;
+  outline:none;
+}
+#codeInput::placeholder{ color:var(--ink-dim); }
+#redeemBtn{ font-size:12px; padding:10px 14px; }
+.codes-message{
+  min-height:18px;
+  font-size:12px;
+  margin:12px 0 0;
+  color:var(--ink-dim);
+}
+.codes-message.success{ color:var(--lime); }
+.codes-message.error{ color:var(--magenta); }
+
 /* ---------- Info modal ---------- */
 #info-modal{
   position:fixed; inset:0;
@@ -727,9 +921,9 @@ main{
   .token .emoji{ font-size:26px; }
   .token .name{ font-size:9px; }
 
-  #book-btn, #achievements-btn, #trash-zone{ width:48px; height:48px; font-size:20px; }
-  #achievements-btn{ left:64px; }
-  #book-card, #achievements-card{ max-height:86vh; }
+  .toolbar-btn, #trash-zone{ width:48px; height:48px; font-size:20px; }
+  #toolbar-buttons{ gap:8px; }
+  #book-card, #achievements-card, #theme-card, #codes-card{ max-height:86vh; }
   #index-list{ grid-template-columns:repeat(3,1fr); }
 }
 
@@ -737,4 +931,3 @@ main{
   #inventory{ grid-template-columns:repeat(3,1fr); }
   #index-list{ grid-template-columns:repeat(2,1fr); }
 }
-

@@ -62,9 +62,11 @@ save to another browser/computer, or to hand-edit it).
 - The 🏆 button opens Achievements. Currently tracks one: discovering every
   single element in the game.
 - Drag an element onto the 🗑️ trash icon to delete it, or press and hold the
-  trash icon for 5 seconds to clear every element currently on the board.
-- Short sound effects (combine, discover, fail, delete, achievement) are
+  trash icon for 2.5 seconds to clear every element currently on the board.
+- Short sound effects (combine, discover, delete, achievement, UI clicks) are
   generated on the fly with the Web Audio API — no audio files, no music.
+- The 🎨 button lets you pick a theme: Purple, Dark Grey, or White. There's a
+  4th secret theme — redeem the right code in the 🔑 Codes button to unlock it.
 
 ## Editing the game data
 
