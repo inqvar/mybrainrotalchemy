@@ -56,7 +56,15 @@ save to another browser/computer, or to hand-edit it).
   to subtract it and reveal the other ingredient — e.g. if you have
   `Holy Height` (= Raw Milk + Healthy) but not `Raw Milk` yet, drop `Healthy`
   onto `Holy Height` to extract `Raw Milk`.
-- The 📖 button opens your recipe book with every combo you've discovered.
+- The 📖 button opens the Lexicon: a **Recipes** tab (every combo you've
+  discovered) and an **Index** tab (every element that exists in the game,
+  greyed out until you've found it — no recipes shown there).
+- The 🏆 button opens Achievements. Currently tracks one: discovering every
+  single element in the game.
+- Drag an element onto the 🗑️ trash icon to delete it, or press and hold the
+  trash icon for 5 seconds to clear every element currently on the board.
+- Short sound effects (combine, discover, fail, delete, achievement) are
+  generated on the fly with the Web Audio API — no audio files, no music.
 
 ## Editing the game data
 

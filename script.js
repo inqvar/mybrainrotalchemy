@@ -39,6 +39,32 @@ const ELEMENTS = {
   // tier 3
   gigachad_skibidi: { name:"Gigachad Skibidi", emoji:"🏆" },
   max_aura:         { name:"Max Aura 9000",    emoji:"🌟" },
+
+  // more base elements
+  rank:       { name:"Rank",       emoji:"🏅", base:true },
+  over:       { name:"Over",       emoji:"🚀", base:true },
+  genetics:   { name:"Genetics",   emoji:"🧬", base:true },
+  cookie:     { name:"Cookie",     emoji:"🍪", base:true },
+  king:       { name:"King",       emoji:"🤴", base:true },
+  tall:       { name:"Tall",       emoji:"📏", base:true },
+  muscular:   { name:"Muscular",   emoji:"🏋️", base:true },
+  rich:       { name:"Rich",       emoji:"💰", base:true },
+
+  // more tier 1
+  milk_money:   { name:"Milk Money",   emoji:"🫙" },
+  milky_stacy:  { name:"Milky Stacy",  emoji:"💅" },
+  blackpill:    { name:"Blackpill",    emoji:"💊" },
+  cookieking:   { name:"Cookieking",   emoji:"🫅" },
+
+  // more tier 2 / crossovers
+  nd:               { name:"ND",              emoji:"🌀" },
+  doomer:           { name:"Doomer",          emoji:"😔" },
+  rich_aura:        { name:"Rich Aura",       emoji:"💸" },
+  stacy_supremacy:  { name:"Stacy Supremacy", emoji:"👑" },
+
+  // 3-ingredient result
+  chopped_ahh_foid: { name:"Chopped Ahh Foid", emoji:"🔪" },
+  tall_and_muscular: { name:"Tall and Muscular", emoji:"🦍" },
 };
 
 // [ingredientA, ingredientB, result]
@@ -68,6 +94,17 @@ const RECIPES = [
 
   ["skibidi_sigma","rizz_god","gigachad_skibidi"],
   ["aura_farmer","griddy_king","max_aura"],
+
+  ["raw_milk","cash25","milk_money"],
+  ["raw_milk","stacy","milky_stacy"],
+  ["over","genetics","blackpill"],
+  ["blackpill","rank","nd"],
+  ["cookie","king","cookieking"],
+  ["blackpill","npc_energy","doomer"],
+  ["milk_money","baller","rich_aura"],
+  ["milky_stacy","rizz_god","stacy_supremacy"],
+  ["tall","muscular","tall_and_muscular"],
+  ["tall_and_muscular","rich","chopped_ahh_foid"],
 ];
 
 const BASE_IDS = Object.keys(ELEMENTS).filter(id => ELEMENTS[id].base);
@@ -82,6 +119,80 @@ RECIPES.forEach(([a,b,r])=>{
   (extractMap[r] = extractMap[r] || []).push({have:a, get:b});
   extractMap[r].push({have:b, get:a});
 });
+
+
+/* =========================================================================
+   SOUND EFFECTS
+   Generated with the Web Audio API — no audio files, no music, just short
+   sound effects for feedback (combine, discover, fail, delete, achievement).
+   ========================================================================= */
+let audioCtx = null;
+function getAudioCtx(){
+  if(!audioCtx){
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if(AC) audioCtx = new AC();
+  }
+  if(audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+  return audioCtx;
+}
+
+function playTone(freq, startTime, duration, type, peakGain){
+  const ctx = getAudioCtx();
+  if(!ctx) return;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type || "sine";
+  osc.frequency.setValueAtTime(freq, startTime);
+  gain.gain.setValueAtTime(0, startTime);
+  gain.gain.linearRampToValueAtTime(peakGain || 0.15, startTime + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(startTime);
+  osc.stop(startTime + duration + 0.02);
+}
+
+function playCombineSound(){
+  const ctx = getAudioCtx();
+  if(!ctx) return;
+  const t = ctx.currentTime;
+  playTone(420, t, 0.09, "triangle", 0.14);
+  playTone(640, t + 0.05, 0.12, "triangle", 0.14);
+}
+
+function playDiscoverySound(){
+  const ctx = getAudioCtx();
+  if(!ctx) return;
+  const t = ctx.currentTime;
+  playTone(520, t, 0.11, "square", 0.12);
+  playTone(660, t + 0.09, 0.11, "square", 0.12);
+  playTone(880, t + 0.18, 0.22, "square", 0.14);
+}
+
+function playFailSound(){
+  const ctx = getAudioCtx();
+  if(!ctx) return;
+  const t = ctx.currentTime;
+  playTone(180, t, 0.16, "sawtooth", 0.1);
+  playTone(130, t + 0.07, 0.18, "sawtooth", 0.09);
+}
+
+function playDeleteSound(){
+  const ctx = getAudioCtx();
+  if(!ctx) return;
+  const t = ctx.currentTime;
+  playTone(500, t, 0.12, "sine", 0.1);
+  playTone(220, t + 0.04, 0.14, "sine", 0.08);
+}
+
+function playAchievementSound(){
+  const ctx = getAudioCtx();
+  if(!ctx) return;
+  const t = ctx.currentTime;
+  [520, 660, 780, 1040].forEach((freq, i)=>{
+    playTone(freq, t + i*0.09, 0.2, "square", 0.13);
+  });
+}
 
 
 /* =========================================================================
@@ -132,6 +243,7 @@ function registerOrLogin(rawUsername){
       displayName: username,
       discovered: [...BASE_IDS],
       discoveryOrder: [],
+      achievements: [],
       createdAt: new Date().toISOString(),
     };
     saveDB(DB);
@@ -156,6 +268,7 @@ function persistCurrentUser(discoveredSet, discoveryOrderArr){
   if(!currentUsername) return;
   DB.users[currentUsername].discovered = [...discoveredSet];
   DB.users[currentUsername].discoveryOrder = discoveryOrderArr;
+  DB.users[currentUsername].achievements = [...earnedAchievements];
   saveDB(DB);
 }
 
@@ -234,6 +347,7 @@ $("#total").textContent = TOTAL_ELEMENTS;
    ========================================================================= */
 let discovered = new Set(BASE_IDS);
 let discoveryOrder = [];
+let earnedAchievements = new Set();
 let mode = "plus";
 let zCounter = 10;
 let uidCounter = 1;
@@ -258,12 +372,14 @@ function showGameScreen(){
 
   discovered = new Set(record.discovered && record.discovered.length ? record.discovered : BASE_IDS);
   discoveryOrder = Array.isArray(record.discoveryOrder) ? [...record.discoveryOrder] : [];
+  earnedAchievements = new Set(Array.isArray(record.achievements) ? record.achievements : []);
 
   workspace.querySelectorAll(".token").forEach(t => t.remove());
   emptyHint.style.display = "block";
 
   renderInventory();
   updateCount();
+  checkAchievements();
 }
 
 function attemptLogin(){
@@ -304,6 +420,7 @@ resetBtn.addEventListener("click", ()=>{
   if(!confirm("Reset this account's progress? This can't be undone.")) return;
   discovered = new Set(BASE_IDS);
   discoveryOrder = [];
+  earnedAchievements = new Set();
   workspace.querySelectorAll(".token").forEach(t=>t.remove());
   emptyHint.style.display = "block";
   renderInventory();
@@ -469,6 +586,7 @@ function onTokenPointerDown(e){
 }
 
 function deleteTokenWithAnimation(token){
+  playDeleteSound();
   token.classList.add("deleting");
   setTimeout(()=>{ token.remove(); maybeShowHint(); }, 250);
 }
@@ -509,6 +627,7 @@ function tryCombine(tokenA, tokenB){
   }
 
   if(!resultId){
+    playFailSound();
     tokenA.classList.add("shake");
     tokenB.classList.add("shake");
     setTimeout(()=>{ tokenA.classList.remove("shake"); tokenB.classList.remove("shake"); }, 360);
@@ -529,11 +648,15 @@ function tryCombine(tokenA, tokenB){
   const resultToken = createToken(resultId, x, y, true);
 
   if(newlyDiscovered){
+    playDiscoverySound();
     spawnBadgeAndConfetti(resultToken);
     renderInventory();
     updateCount();
+  } else {
+    playCombineSound();
   }
   persistCurrentUser(discovered, discoveryOrder);
+  checkAchievements();
 }
 
 function maybeShowHint(){
@@ -566,17 +689,30 @@ function spawnBadgeAndConfetti(token){
 
 
 /* =========================================================================
-   RECIPE BOOK
+   LEXICON (Recipes tab + Index tab)
    ========================================================================= */
 const bookModal = $("#book-modal");
 const bookList = $("#book-list");
+const indexList = $("#index-list");
+const bookHint = $("#book-hint");
 
 $("#book-btn").addEventListener("click", ()=>{
   renderBook();
+  renderIndex();
   bookModal.classList.add("open");
 });
 $("#close-book").addEventListener("click", ()=> bookModal.classList.remove("open"));
 bookModal.addEventListener("click", (e)=>{ if(e.target === bookModal) bookModal.classList.remove("open"); });
+
+document.querySelectorAll("#book-card .tab-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    const tab = btn.dataset.tab;
+    document.querySelectorAll("#book-card .tab-btn").forEach(b => b.classList.toggle("active", b === btn));
+    bookList.classList.toggle("hidden", tab !== "recipes");
+    indexList.classList.toggle("hidden", tab !== "index");
+    bookHint.classList.toggle("hidden", tab !== "recipes");
+  });
+});
 
 function renderBook(){
   bookList.innerHTML = "";
@@ -599,6 +735,79 @@ function renderBook(){
     `;
     bookList.appendChild(row);
   });
+}
+
+// Shows every element that exists in the game — greyed out if you don't
+// have it yet. Doesn't reveal how to craft anything.
+function renderIndex(){
+  indexList.innerHTML = "";
+  const allIds = Object.keys(ELEMENTS).sort((a,b)=> ELEMENTS[a].name.localeCompare(ELEMENTS[b].name));
+  allIds.forEach(id=>{
+    const el = ELEMENTS[id];
+    const has = discovered.has(id);
+    const item = document.createElement("div");
+    item.className = "index-item" + (has ? "" : " locked");
+    item.innerHTML = `<div class="emoji">${el.emoji}</div><div class="name">${el.name}</div>`;
+    indexList.appendChild(item);
+  });
+}
+
+
+/* =========================================================================
+   ACHIEVEMENTS
+   ========================================================================= */
+const ACHIEVEMENTS = [
+  {
+    id: "completionist",
+    emoji: "🏆",
+    name: "Completionist",
+    desc: `Discover all ${TOTAL_ELEMENTS} elements in the game.`,
+    check: () => discovered.size >= TOTAL_ELEMENTS,
+  },
+];
+
+const achievementsModal = $("#achievements-modal");
+const achievementsList = $("#achievements-list");
+const achievementsBtn = $("#achievements-btn");
+
+achievementsBtn.addEventListener("click", ()=>{
+  renderAchievements();
+  achievementsModal.classList.add("open");
+  achievementsBtn.classList.remove("has-new");
+});
+$("#close-achievements").addEventListener("click", ()=> achievementsModal.classList.remove("open"));
+achievementsModal.addEventListener("click", (e)=>{ if(e.target === achievementsModal) achievementsModal.classList.remove("open"); });
+
+function renderAchievements(){
+  achievementsList.innerHTML = "";
+  ACHIEVEMENTS.forEach(a=>{
+    const unlocked = earnedAchievements.has(a.id);
+    const row = document.createElement("div");
+    row.className = "achievement-row " + (unlocked ? "unlocked" : "locked");
+    row.innerHTML = `
+      <div class="ach-emoji">${unlocked ? a.emoji : "🔒"}</div>
+      <div class="ach-text">
+        <div class="ach-name">${a.name}</div>
+        <div class="ach-desc">${a.desc}</div>
+      </div>
+    `;
+    achievementsList.appendChild(row);
+  });
+}
+
+function checkAchievements(){
+  let gotNew = false;
+  ACHIEVEMENTS.forEach(a=>{
+    if(!earnedAchievements.has(a.id) && a.check()){
+      earnedAchievements.add(a.id);
+      gotNew = true;
+    }
+  });
+  if(gotNew){
+    playAchievementSound();
+    achievementsBtn.classList.add("has-new");
+    persistCurrentUser(discovered, discoveryOrder);
+  }
 }
 
 

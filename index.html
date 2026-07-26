@@ -66,6 +66,7 @@
           </div>
         </div>
         <div id="book-btn" title="Recipe book">📖</div>
+        <div id="achievements-btn" title="Achievements">🏆</div>
         <div id="trash-zone" title="Drag an element here to delete it • hold 5s to clear the whole board">
           <div class="trash-fill"></div>
           <span class="trash-icon">🗑️</span>
@@ -85,12 +86,29 @@
   <div id="book-card">
     <header>
       <div class="book-head-row">
-        <h2>📖 Recipe Book</h2>
+        <h2>📖 Lexicon</h2>
         <button id="close-book">✕</button>
       </div>
+      <div class="tab-row">
+        <button class="tab-btn active" data-tab="recipes">Recipes</button>
+        <button class="tab-btn" data-tab="index">Index</button>
+      </div>
     </header>
-    <div id="book-list"></div>
+    <div id="book-list" class="tab-panel"></div>
+    <div id="index-list" class="tab-panel hidden"></div>
     <div id="book-hint">Tip: every recipe also works backwards in ➖ Extract mode.</div>
+  </div>
+</div>
+
+<div id="achievements-modal">
+  <div id="achievements-card">
+    <header>
+      <div class="book-head-row">
+        <h2>🏆 Achievements</h2>
+        <button id="close-achievements">✕</button>
+      </div>
+    </header>
+    <div id="achievements-list"></div>
   </div>
 </div>
 
