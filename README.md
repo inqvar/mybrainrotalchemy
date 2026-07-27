@@ -68,6 +68,19 @@ save to another browser/computer, or to hand-edit it).
 - The 🎨 button lets you pick a theme: Purple, Dark Grey, or White. There's a
   4th secret theme — redeem the right code in the 🔑 Codes button to unlock it.
 
+## Background music
+
+The header has a 🔊/🔇 **Music** button that plays `bg_music.mp3` on loop,
+quietly, in the background. **This repo doesn't include an actual audio
+file** — drop your own `bg_music.mp3` into the project root (same folder as
+`index.html`) and it'll play automatically. No code changes needed, just the
+file with that exact name.
+
+Browsers block autoplay-with-sound until you've clicked/pressed something on
+the page at least once — the game handles that automatically (music starts
+on the first click if it couldn't start immediately). The mute preference is
+remembered per browser.
+
 ## Editing the game data
 
 All elements and recipes live in `ELEMENTS` and `RECIPES` at the top of

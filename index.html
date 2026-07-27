@@ -45,6 +45,8 @@
           <div class="opt minus" data-mode="minus">➖ EXTRACT</div>
         </div>
 
+        <button id="musicToggle" class="mini-btn" title="Toggle background music">🔊 Music</button>
+
         <div class="account-box">
           <span class="account-label mono">👤 <span id="currentUserLabel">guest</span></span>
           <button class="mini-btn" id="exportBtn" title="Download your save as users.json">⬇️ Export</button>
@@ -161,6 +163,8 @@
     </div>
   </div>
 </div>
+
+<audio id="bgMusic" src="bg_music.mp3" loop preload="auto"></audio>
 
 <script src="script.js"></script>
 </body>

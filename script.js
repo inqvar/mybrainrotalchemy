@@ -65,6 +65,24 @@ const ELEMENTS = {
   // 3-ingredient result
   chopped_ahh_foid: { name:"Chopped Ahh Foid", emoji:"🔪" },
   tall_and_muscular: { name:"Tall and Muscular", emoji:"🦍" },
+
+  // new base elements
+  democracy: { name:"Democracy", emoji:"🗳️", base:true },
+  sleep:     { name:"Sleep",     emoji:"😴", base:true },
+  larp:      { name:"Larp",      emoji:"🎭", base:true },
+  evil:      { name:"Evil",      emoji:"😈", base:true },
+  man:       { name:"Man",       emoji:"🧍", base:true },
+  israel:    { name:"Israel",    emoji:"🇮🇱", base:true },
+  europe:    { name:"Europe",    emoji:"🌍", base:true },
+
+  // new crafted elements
+  sinister:            { name:"Sinister",             emoji:"🕴️" },
+  "333_iq":             { name:"333 IQ",               emoji:"🧠" },
+  computer:             { name:"Computer",             emoji:"💻" },
+  sleep_server_closed:  { name:"Sleep Server Closed",  emoji:"📴" },
+  big_yahu:             { name:"Big Yahu",             emoji:"🎩" },
+  eu:                   { name:"EU",                   emoji:"🇪🇺" },
+  chat_surveillance:    { name:"Chat Surveillance",    emoji:"👁️" },
 };
 
 // [ingredientA, ingredientB, result]
@@ -105,6 +123,14 @@ const RECIPES = [
   ["milky_stacy","rizz_god","stacy_supremacy"],
   ["tall","muscular","tall_and_muscular"],
   ["tall_and_muscular","rich","chopped_ahh_foid"],
+
+  ["larp","evil","sinister"],
+  ["sinister","larp","333_iq"],
+  ["333_iq","rich","computer"],
+  ["sleep","computer","sleep_server_closed"],
+  ["man","israel","big_yahu"],
+  ["big_yahu","europe","eu"],
+  ["eu","democracy","chat_surveillance"],
 ];
 
 const BASE_IDS = Object.keys(ELEMENTS).filter(id => ELEMENTS[id].base);
@@ -195,6 +221,65 @@ function playUIClickSound(){
 
 
 /* =========================================================================
+   BACKGROUND MUSIC
+   Plays bg_music.mp3 on loop, quietly, in the background. Browsers block
+   autoplay-with-sound until the user has interacted with the page at least
+   once, so we try to play immediately and, if that's blocked, start on the
+   first click/keydown anywhere. The mute preference is remembered.
+   ========================================================================= */
+const MUSIC_MUTED_KEY = "brainrotAlchemyMusicMuted";
+const bgMusic = document.getElementById("bgMusic");
+const musicToggle = document.getElementById("musicToggle");
+let musicMuted = false;
+
+function loadMusicState(){
+  try{
+    musicMuted = localStorage.getItem(MUSIC_MUTED_KEY) === "true";
+  }catch(e){
+    musicMuted = false;
+  }
+  updateMusicButton();
+}
+
+function updateMusicButton(){
+  if(!musicToggle) return;
+  musicToggle.textContent = musicMuted ? "🔇 Music" : "🔊 Music";
+}
+
+function tryStartMusic(){
+  if(!bgMusic || musicMuted) return;
+  bgMusic.volume = 0.35;
+  const p = bgMusic.play();
+  if(p && p.catch){
+    p.catch(()=>{ /* blocked until a user gesture happens — kickoff listener retries */ });
+  }
+}
+
+function initMusic(){
+  if(!bgMusic) return;
+  loadMusicState();
+  tryStartMusic();
+  // browsers block autoplay-with-sound until the first user interaction
+  const kickoff = () => { tryStartMusic(); };
+  document.addEventListener("pointerdown", kickoff, { once:true });
+  document.addEventListener("keydown", kickoff, { once:true });
+}
+
+if(musicToggle){
+  musicToggle.addEventListener("click", ()=>{
+    musicMuted = !musicMuted;
+    try{ localStorage.setItem(MUSIC_MUTED_KEY, String(musicMuted)); }catch(e){}
+    updateMusicButton();
+    if(musicMuted){
+      bgMusic.pause();
+    } else {
+      tryStartMusic();
+    }
+  });
+}
+
+
+/* =========================================================================
    "DATABASE" LAYER
    Simulates users.json using the browser's localStorage, but always reads
    and writes the exact same JSON shape you'd find in users.json:
@@ -238,12 +323,11 @@ function registerOrLogin(rawUsername){
   const key = username.toLowerCase();
 
   if(!DB.users[key]){
-    const isCheatCode = key === "6741";
     DB.users[key] = {
       displayName: username,
-      discovered: isCheatCode ? Object.keys(ELEMENTS) : [...BASE_IDS],
-      discoveryOrder: isCheatCode ? RECIPES.map(r => r[2]) : [],
-      achievements: isCheatCode ? ACHIEVEMENTS.map(a => a.id) : [],
+      discovered: [...BASE_IDS],
+      discoveryOrder: [],
+      achievements: [],
       createdAt: new Date().toISOString(),
     };
     saveDB(DB);
@@ -919,6 +1003,16 @@ function redeemCode(){
     applyTheme("mango");
     codesMessage.textContent = "🥭 Mango theme unlocked and applied!";
     codesMessage.className = "codes-message success";
+  } else if(raw === "unlockall"){
+    discovered = new Set(Object.keys(ELEMENTS));
+    discoveryOrder = RECIPES.map(r => r[2]);
+    ACHIEVEMENTS.forEach(a => earnedAchievements.add(a.id));
+    renderInventory();
+    updateCount();
+    persistCurrentUser(discovered, discoveryOrder);
+    playAchievementSound();
+    codesMessage.textContent = "🔓 Everything unlocked — all elements and achievements!";
+    codesMessage.className = "codes-message success";
   } else {
     codesMessage.textContent = "That code doesn't do anything... yet.";
     codesMessage.className = "codes-message error";
@@ -1025,6 +1119,7 @@ infoModal.addEventListener("click", (e)=>{ if(e.target === infoModal) infoModal.
    ========================================================================= */
 (function init(){
   loadThemeState();
+  initMusic();
   if(tryResumeSession()){
     showGameScreen();
   }else{
