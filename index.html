@@ -37,6 +37,8 @@
         <button id="info-btn" title="About this game">ℹ️</button>
       </div>
 
+      <div id="musicVisualizer" class="header-visualizer" aria-hidden="true"></div>
+
       <div class="header-right">
         <div class="stat mono"><b id="count">6</b> / <span id="total">26</span> unlocked</div>
 
@@ -45,7 +47,11 @@
           <div class="opt minus" data-mode="minus">➖ EXTRACT</div>
         </div>
 
-        <button id="musicToggle" class="mini-btn" title="Toggle background music">🔊 Music</button>
+        <div id="musicControls">
+          <span class="music-icon">🔊</span>
+          <input type="range" id="musicVolumeSlider" min="0" max="100" value="35" title="Music volume">
+          <button id="musicTracksBtn" class="mini-btn" title="Choose music">☰</button>
+        </div>
 
         <div class="account-box">
           <span class="account-label mono">👤 <span id="currentUserLabel">guest</span></span>
@@ -146,6 +152,18 @@
       </div>
       <p id="codesMessage" class="codes-message"></p>
     </div>
+  </div>
+</div>
+
+<div id="tracks-modal">
+  <div id="tracks-card">
+    <header>
+      <div class="book-head-row">
+        <h2>☰ Choose Music</h2>
+        <button id="close-tracks">✕</button>
+      </div>
+    </header>
+    <div id="tracks-list"></div>
   </div>
 </div>
 

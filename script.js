@@ -83,6 +83,36 @@ const ELEMENTS = {
   big_yahu:             { name:"Big Yahu",             emoji:"🎩" },
   eu:                   { name:"EU",                   emoji:"🇪🇺" },
   chat_surveillance:    { name:"Chat Surveillance",    emoji:"👁️" },
+
+  // Clavicular / ASU Frat Leader chain — new bases
+  bone:   { name:"Bone",  emoji:"🦴", base:true },
+  pc:     { name:"PC",    emoji:"🖥️", base:true },
+  frame:  { name:"Frame", emoji:"🖼️", base:true },
+
+  // Clavicular / ASU Frat Leader chain — crafted
+  clavicular:          { name:"Clavicular",          emoji:"🩻" },
+  clav_created_org:     { name:"Clav Created .org",   emoji:"🌐" },
+  asu_frat_leader:      { name:"ASU Frat Leader",     emoji:"🍺" },
+  holy_framemog:        { name:"Holy Framemog",       emoji:"🪞" },
+
+  // brainrot meme figures — new bases
+  sneaker:   { name:"Sneaker",   emoji:"👟", base:true },
+  shark:     { name:"Shark",     emoji:"🦈", base:true },
+  wood:      { name:"Wood",      emoji:"🪵", base:true },
+  bat:       { name:"Bat",       emoji:"🏏", base:true },
+  monkey:    { name:"Monkey",    emoji:"🐒", base:true },
+  banana:    { name:"Banana",    emoji:"🍌", base:true },
+  crocodile: { name:"Crocodile", emoji:"🐊", base:true },
+  plane:     { name:"Plane",     emoji:"✈️", base:true },
+  elephant:  { name:"Elephant",  emoji:"🐘", base:true },
+  palm_tree: { name:"Palm Tree", emoji:"🌴", base:true },
+
+  // brainrot meme figures — crafted
+  tralalero_tralala:     { name:"Tralalero Tralala",     emoji:"🦈" },
+  tung_tung_tung_sahur:   { name:"Tung Tung Tung Sahur",  emoji:"🥁" },
+  chimpanzini_bananini:   { name:"Chimpanzini Bananini",  emoji:"🐵" },
+  bombardiro_crocodilo:   { name:"Bombardiro Crocodilo",  emoji:"💣" },
+  lirili_larila:          { name:"Lirili Larila",         emoji:"🏝️" },
 };
 
 // [ingredientA, ingredientB, result]
@@ -131,6 +161,17 @@ const RECIPES = [
   ["man","israel","big_yahu"],
   ["big_yahu","europe","eu"],
   ["eu","democracy","chat_surveillance"],
+
+  ["bone","blackpill","clavicular"],
+  ["clavicular","pc","clav_created_org"],
+  ["man","frame","asu_frat_leader"],
+  ["clavicular","asu_frat_leader","holy_framemog"],
+
+  ["sneaker","shark","tralalero_tralala"],
+  ["wood","bat","tung_tung_tung_sahur"],
+  ["monkey","banana","chimpanzini_bananini"],
+  ["crocodile","plane","bombardiro_crocodilo"],
+  ["elephant","palm_tree","lirili_larila"],
 ];
 
 const BASE_IDS = Object.keys(ELEMENTS).filter(id => ELEMENTS[id].base);
@@ -222,41 +263,81 @@ function playUIClickSound(){
 
 /* =========================================================================
    BACKGROUND MUSIC
-   Plays bg_music.mp3 on loop, quietly, in the background. Browsers block
-   autoplay-with-sound until the user has interacted with the page at least
-   once, so we try to play immediately and, if that's blocked, start on the
-   first click/keydown anywhere. The mute preference is remembered.
+   Plays a looping track quietly in the background. The volume slider and
+   track picker (☰) are always visible. Redeeming the "strawberry" code adds
+   a second, secret track (niche_bg_music.mp3) to the picker — it's simply
+   invisible in the list until unlocked. Browsers block autoplay-with-sound
+   until the user has interacted with the page at least once, so we try to
+   play immediately and, if that's blocked, start on the first click/keydown
+   anywhere.
    ========================================================================= */
-const MUSIC_MUTED_KEY = "brainrotAlchemyMusicMuted";
+const MUSIC_VOLUME_KEY = "brainrotAlchemyMusicVolume";
+const MUSIC_TRACK_KEY = "brainrotAlchemyMusicTrack";
+const UNLOCKED_TRACKS_KEY = "brainrotAlchemyUnlockedMusicTracks";
+
+const MUSIC_TRACKS = [
+  { id:"default", name:"Default", file:"bg_music.mp3", emoji:"🎵", secret:false },
+  { id:"niche",   name:"DJ Niche Mix", file:"niche_bg_music.mp3", emoji:"🍓", secret:true },
+];
+
 const bgMusic = document.getElementById("bgMusic");
-const musicToggle = document.getElementById("musicToggle");
-let musicMuted = false;
+const musicVolumeSlider = document.getElementById("musicVolumeSlider");
+const musicTracksBtn = document.getElementById("musicTracksBtn");
+const tracksModal = document.getElementById("tracks-modal");
+const tracksList = document.getElementById("tracks-list");
+
+let musicVolume = 35;
+let selectedTrackId = "default";
+let unlockedTracks = [];
 
 function loadMusicState(){
   try{
-    musicMuted = localStorage.getItem(MUSIC_MUTED_KEY) === "true";
+    const savedVolume = parseInt(localStorage.getItem(MUSIC_VOLUME_KEY), 10);
+    musicVolume = Number.isFinite(savedVolume) ? savedVolume : 35;
+    const savedUnlocked = JSON.parse(localStorage.getItem(UNLOCKED_TRACKS_KEY) || "[]");
+    unlockedTracks = Array.isArray(savedUnlocked) ? savedUnlocked : [];
+    const savedTrack = localStorage.getItem(MUSIC_TRACK_KEY) || "default";
+    const track = MUSIC_TRACKS.find(t => t.id === savedTrack);
+    selectedTrackId = (track && (!track.secret || unlockedTracks.includes(track.id))) ? savedTrack : "default";
   }catch(e){
-    musicMuted = false;
+    musicVolume = 35; unlockedTracks = []; selectedTrackId = "default";
   }
-  updateMusicButton();
-}
 
-function updateMusicButton(){
-  if(!musicToggle) return;
-  musicToggle.textContent = musicMuted ? "🔇 Music" : "🔊 Music";
+  if(bgMusic){
+    const track = MUSIC_TRACKS.find(t => t.id === selectedTrackId) || MUSIC_TRACKS[0];
+    bgMusic.src = track.file;
+    bgMusic.volume = musicVolume / 100;
+  }
+  if(musicVolumeSlider) musicVolumeSlider.value = musicVolume;
 }
 
 function tryStartMusic(){
-  if(!bgMusic || musicMuted) return;
-  bgMusic.volume = 0.35;
+  if(!bgMusic) return;
+  getAudioCtx(); // always retries resume() here, since resume() needs a real user gesture
+  bgMusic.volume = musicVolume / 100;
   const p = bgMusic.play();
   if(p && p.catch){
     p.catch(()=>{ /* blocked until a user gesture happens — kickoff listener retries */ });
+  }
+  connectVisualizer();
+}
+
+function setMusicTrack(trackId){
+  const track = MUSIC_TRACKS.find(t => t.id === trackId);
+  if(!track) return;
+  if(track.secret && !unlockedTracks.includes(track.id)) return;
+  selectedTrackId = trackId;
+  try{ localStorage.setItem(MUSIC_TRACK_KEY, trackId); }catch(e){}
+  if(bgMusic){
+    bgMusic.src = track.file;
+    bgMusic.load();
+    tryStartMusic();
   }
 }
 
 function initMusic(){
   if(!bgMusic) return;
+  buildVisualizerBars();
   loadMusicState();
   tryStartMusic();
   // browsers block autoplay-with-sound until the first user interaction
@@ -265,17 +346,117 @@ function initMusic(){
   document.addEventListener("keydown", kickoff, { once:true });
 }
 
-if(musicToggle){
-  musicToggle.addEventListener("click", ()=>{
-    musicMuted = !musicMuted;
-    try{ localStorage.setItem(MUSIC_MUTED_KEY, String(musicMuted)); }catch(e){}
-    updateMusicButton();
-    if(musicMuted){
-      bgMusic.pause();
-    } else {
-      tryStartMusic();
-    }
+if(musicVolumeSlider){
+  musicVolumeSlider.addEventListener("input", ()=>{
+    musicVolume = parseInt(musicVolumeSlider.value, 10);
+    try{ localStorage.setItem(MUSIC_VOLUME_KEY, String(musicVolume)); }catch(e){}
+    if(bgMusic) bgMusic.volume = musicVolume / 100;
+    tryStartMusic();
   });
+}
+
+if(musicTracksBtn){
+  musicTracksBtn.addEventListener("click", ()=>{
+    playUIClickSound();
+    renderTracksList();
+    tracksModal.classList.add("open");
+  });
+}
+const closeTracksBtn = document.getElementById("close-tracks");
+if(closeTracksBtn) closeTracksBtn.addEventListener("click", ()=> tracksModal.classList.remove("open"));
+if(tracksModal){
+  tracksModal.addEventListener("click", (e)=>{ if(e.target === tracksModal) tracksModal.classList.remove("open"); });
+}
+
+function renderTracksList(){
+  if(!tracksList) return;
+  tracksList.innerHTML = "";
+  MUSIC_TRACKS.forEach(t=>{
+    if(t.secret && !unlockedTracks.includes(t.id)) return;
+    const row = document.createElement("div");
+    row.className = "track-row" + (selectedTrackId === t.id ? " active" : "");
+    row.innerHTML = `
+      <div class="track-emoji">${t.emoji}</div>
+      <div class="track-name">${t.name}</div>
+      <div class="track-check">${selectedTrackId === t.id ? "✅" : ""}</div>
+    `;
+    row.addEventListener("click", ()=>{
+      playUIClickSound();
+      setMusicTrack(t.id);
+      renderTracksList();
+    });
+    tracksList.appendChild(row);
+  });
+}
+
+
+/* =========================================================================
+   MUSIC VISUALIZER
+   A small AnalyserNode-driven bar visualizer that sits in the header. Bars
+   only grow upward from a flat baseline; color follows the active theme
+   automatically via the --magenta CSS variable.
+   ========================================================================= */
+const VIZ_BAR_COUNT = 24;
+const musicVisualizerEl = document.getElementById("musicVisualizer");
+let vizBars = [];
+let vizAnalyser = null;
+let vizDataArray = null;
+let vizConnected = false;
+let vizAnimHandle = null;
+
+function buildVisualizerBars(){
+  if(!musicVisualizerEl || vizBars.length) return;
+  for(let i=0;i<VIZ_BAR_COUNT;i++){
+    const bar = document.createElement("div");
+    bar.className = "viz-bar";
+    musicVisualizerEl.appendChild(bar);
+    vizBars.push(bar);
+  }
+}
+
+function connectVisualizer(){
+  if(vizConnected || !bgMusic) return;
+  // file:// treats every local file as its own origin, so createMediaElementSource
+  // would silently mute the audio. Skip the visualizer there — music still plays
+  // normally through the plain <audio> element. Works fully once hosted (http/https).
+  if(location.protocol === "file:"){
+    vizConnected = true;
+    return;
+  }
+  const ctx = getAudioCtx();
+  if(!ctx) return;
+  try{
+    const source = ctx.createMediaElementSource(bgMusic);
+    const analyser = ctx.createAnalyser();
+    source.connect(analyser);
+    analyser.connect(ctx.destination); // restore the audio path to speakers first
+    analyser.fftSize = 64;
+    analyser.smoothingTimeConstant = 0.75;
+    vizAnalyser = analyser;
+    vizDataArray = new Uint8Array(analyser.frequencyBinCount);
+    vizConnected = true;
+    startVizLoop();
+  }catch(e){
+    vizConnected = true; // don't keep retrying and risk breaking the audio graph further
+    console.warn("Visualizer couldn't attach:", e);
+  }
+}
+
+function startVizLoop(){
+  if(vizAnimHandle) return;
+  function frame(){
+    if(vizAnalyser && vizDataArray && vizBars.length){
+      vizAnalyser.getByteFrequencyData(vizDataArray);
+      const step = Math.max(1, Math.floor(vizDataArray.length / vizBars.length));
+      vizBars.forEach((bar, i)=>{
+        const v = vizDataArray[i * step] || 0;
+        const pct = Math.max(6, Math.min(100, (v / 255) * 100));
+        bar.style.height = pct + "%";
+      });
+    }
+    vizAnimHandle = requestAnimationFrame(frame);
+  }
+  vizAnimHandle = requestAnimationFrame(frame);
 }
 
 
@@ -1012,6 +1193,15 @@ function redeemCode(){
     persistCurrentUser(discovered, discoveryOrder);
     playAchievementSound();
     codesMessage.textContent = "🔓 Everything unlocked — all elements and achievements!";
+    codesMessage.className = "codes-message success";
+  } else if(raw === "strawberry"){
+    if(!unlockedTracks.includes("niche")){
+      unlockedTracks.push("niche");
+      try{ localStorage.setItem(UNLOCKED_TRACKS_KEY, JSON.stringify(unlockedTracks)); }catch(e){}
+    }
+    setMusicTrack("niche");
+    playAchievementSound();
+    codesMessage.textContent = "🍓 New track unlocked! Check the ☰ music picker.";
     codesMessage.className = "codes-message success";
   } else {
     codesMessage.textContent = "That code doesn't do anything... yet.";

@@ -268,6 +268,28 @@ h1{
 
 .header-right{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
 
+.header-visualizer{
+  flex:1;
+  min-width:40px;
+  max-width:320px;
+  height:34px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  gap:3px;
+  padding:0 12px;
+  overflow:hidden;
+}
+.viz-bar{
+  width:4px;
+  flex-shrink:0;
+  height:6%;
+  min-height:2px;
+  border-radius:3px 3px 0 0;
+  background:var(--magenta);
+  transition:height .06s linear;
+}
+
 /* mode switch */
 .mode-switch{
   display:flex;
@@ -607,7 +629,7 @@ main{
 }
 .book-head-row{ display:flex; align-items:center; justify-content:space-between; }
 #book-card h2{ margin:0; font-size:15px; color:var(--lime); font-family:'Bungee',sans-serif; }
-#close-book, #close-achievements, #close-info, #close-theme, #close-codes{
+#close-book, #close-achievements, #close-info, #close-theme, #close-codes, #close-tracks{
   background:var(--magenta);
   border:2px solid var(--outline);
   color:#1a0113;
@@ -806,6 +828,70 @@ main{
 .theme-row .theme-name{ flex:1; font-size:13px; font-weight:700; color:var(--ink); }
 .theme-row .theme-check{ font-size:16px; color:var(--lime); width:20px; text-align:center; }
 
+/* ---------- Music: simple/advanced controls + track picker ---------- */
+#musicControls{ display:flex; align-items:center; gap:8px; background:var(--bg2); border:2px solid var(--outline); border-radius:10px; padding:5px 10px; }
+.music-icon{ font-size:14px; }
+#musicVolumeSlider{
+  width:90px;
+  accent-color:var(--magenta);
+  cursor:pointer;
+}
+#musicTracksBtn{ padding:5px 9px; font-size:13px; }
+
+#tracks-modal{
+  position:fixed; inset:0;
+  background:rgba(10,5,18,0.72);
+  display:none;
+  align-items:center; justify-content:center;
+  z-index:100;
+  padding:20px;
+}
+#tracks-modal.open{ display:flex; }
+#tracks-card{
+  background:var(--panel);
+  border:3px solid var(--outline);
+  border-radius:22px;
+  box-shadow:6px 6px 0 var(--outline);
+  width:100%;
+  max-width:400px;
+  max-height:80vh;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+#tracks-card header{
+  background:var(--panel);
+  border:none;
+  border-bottom:3px solid var(--outline);
+  border-radius:0;
+  box-shadow:none;
+  padding:14px 18px;
+}
+#tracks-card h2{ margin:0; font-size:15px; color:var(--lime); font-family:'Bungee',sans-serif; }
+#tracks-list{
+  padding:14px 18px 20px;
+  overflow-y:auto;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.track-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  background:var(--bg2);
+  border:2px solid var(--outline);
+  border-radius:14px;
+  padding:12px 14px;
+  cursor:pointer;
+  transition:transform .1s ease;
+}
+.track-row:hover{ transform:translateY(-1px); }
+.track-row.active{ box-shadow:0 0 0 3px var(--magenta) inset; }
+.track-row .track-emoji{ font-size:22px; width:32px; text-align:center; flex-shrink:0; }
+.track-row .track-name{ flex:1; font-size:13px; font-weight:700; color:var(--ink); }
+.track-row .track-check{ font-size:16px; color:var(--lime); width:20px; text-align:center; }
+
 /* ---------- Codes ---------- */
 #codes-modal{
   position:fixed; inset:0;
@@ -904,6 +990,7 @@ main{
   .tagline{ display:none; }
   .title-block .logo{ width:40px; height:40px; font-size:22px; }
   #info-btn{ width:28px; height:28px; font-size:12px; }
+  .header-visualizer{ display:none; }
   .header-right{ width:100%; justify-content:space-between; }
   .stat{ font-size:11px; padding:5px 8px; }
   .mode-switch .opt{ padding:6px 10px; font-size:11px; }
@@ -931,3 +1018,4 @@ main{
   #inventory{ grid-template-columns:repeat(3,1fr); }
   #index-list{ grid-template-columns:repeat(2,1fr); }
 }
+

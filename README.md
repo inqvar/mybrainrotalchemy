@@ -70,16 +70,25 @@ save to another browser/computer, or to hand-edit it).
 
 ## Background music
 
-The header has a 🔊/🔇 **Music** button that plays `bg_music.mp3` on loop,
-quietly, in the background. **This repo doesn't include an actual audio
-file** — drop your own `bg_music.mp3` into the project root (same folder as
-`index.html`) and it'll play automatically. No code changes needed, just the
-file with that exact name.
+The header has a volume slider and a ☰ button (music picker) that are
+always visible. **This repo doesn't include an actual audio file** — drop
+your own `bg_music.mp3` into the project root (same folder as `index.html`)
+and it'll play automatically. No code changes needed, just the file with
+that exact name.
+
+Redeeming the code `strawberry` in the 🔑 Codes button adds a second,
+secret track to the ☰ picker — add a `niche_bg_music.mp3` file to the root
+too. It stays invisible in the picker until you redeem the code.
 
 Browsers block autoplay-with-sound until you've clicked/pressed something on
 the page at least once — the game handles that automatically (music starts
-on the first click if it couldn't start immediately). The mute preference is
-remembered per browser.
+on the first click if it couldn't start immediately). Volume, selected
+track, and unlocked tracks are remembered per browser.
+
+There's also a small animated bar visualizer in the header (between the logo
+and the stats) that reacts to whatever's currently playing — it's driven by
+a Web Audio `AnalyserNode`, bars only grow upward from a flat baseline, and
+their color follows whichever theme is active.
 
 ## Editing the game data
 
