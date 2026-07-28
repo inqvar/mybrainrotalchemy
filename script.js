@@ -453,7 +453,7 @@ function connectVisualizer(){
     source.connect(analyser);
     analyser.connect(ctx.destination); // restore the audio path to speakers first
     analyser.fftSize = 64;
-    analyser.smoothingTimeConstant = 0.75;
+    analyser.smoothingTimeConstant = 0.65;
     vizAnalyser = analyser;
     vizDataArray = new Uint8Array(analyser.frequencyBinCount);
     vizConnected = true;
@@ -472,7 +472,7 @@ function startVizLoop(){
       const step = Math.max(1, Math.floor(vizDataArray.length / vizBars.length));
       vizBars.forEach((bar, i)=>{
         const v = vizDataArray[i * step] || 0;
-        const pct = Math.max(6, Math.min(100, (v / 255) * 100));
+        const pct = Math.max(6, Math.min(100, (v / 255) * 100 * 1.25));
         bar.style.height = pct + "%";
       });
     }
