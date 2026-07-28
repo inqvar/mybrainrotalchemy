@@ -65,20 +65,37 @@ save to another browser/computer, or to hand-edit it).
   trash icon for 2.5 seconds to clear every element currently on the board.
 - Short sound effects (combine, discover, delete, achievement, UI clicks) are
   generated on the fly with the Web Audio API — no audio files, no music.
-- The 🎨 button lets you pick a theme: Purple, Dark Grey, or White. There's a
-  4th secret theme — redeem the right code in the 🔑 Codes button to unlock it.
+- The 🎨 button lets you pick a theme: Purple, Dark Grey, or White. There are
+  two secret themes unlocked via codes — see below.
+
+## Secret codes
+
+- `mango` — unlocks and applies the Mango theme (orange + dark yellow, mangos
+  falling in the foreground).
+- `strawberry` — unlocks and applies the Strawberry theme (red/pink + green,
+  strawberries falling the same way), and adds a second music track
+  (`niche_bg_music.mp3`) to the ☰ music picker.
+- `unlockall` — instantly unlocks every element, recipe, and achievement.
+
+## Interactive background
+
+The dotted grid inside the workspace is a live canvas, not a static image —
+the dots gently push away from your mouse and ease back when you move away.
+Subtle, decorative, purely visual. Their color follows whichever theme is
+active (same as everything else).
 
 ## Background music
 
 The header has a volume slider and a ☰ button (music picker) that are
-always visible. **This repo doesn't include an actual audio file** — drop
-your own `bg_music.mp3` into the project root (same folder as `index.html`)
-and it'll play automatically. No code changes needed, just the file with
-that exact name.
+always visible. **This repo doesn't include actual audio files** — drop
+your own tracks into a **`music/` folder** in the project root (next to
+`index.html`) using these exact names and they'll show up automatically:
 
-Redeeming the code `strawberry` in the 🔑 Codes button adds a second,
-secret track to the ☰ picker — add a `niche_bg_music.mp3` file to the root
-too. It stays invisible in the picker until you redeem the code.
+- `music/bg_music.mp3` — Default
+- `music/bg_music_2.mp3` — Default #2
+- `music/bg_music_3.mp3` — Default #3
+- `music/niche_bg_music.mp3` — DJ Niche Mix (secret, unlocked via the `strawberry` code)
+- `music/niche_bg_2.mp3` — Mango Mix (secret, unlocked via the `mango` code)
 
 Browsers block autoplay-with-sound until you've clicked/pressed something on
 the page at least once — the game handles that automatically (music starts

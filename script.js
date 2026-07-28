@@ -113,6 +113,20 @@ const ELEMENTS = {
   chimpanzini_bananini:   { name:"Chimpanzini Bananini",  emoji:"🐵" },
   bombardiro_crocodilo:   { name:"Bombardiro Crocodilo",  emoji:"💣" },
   lirili_larila:          { name:"Lirili Larila",         emoji:"🏝️" },
+
+  // new base elements
+  bee:        { name:"Bee",        emoji:"🐝", base:true },
+  hair:       { name:"Hair",       emoji:"🦱", base:true },
+  mango_fruit:{ name:"Mango",      emoji:"🥭", base:true },
+  mustard:    { name:"Mustard",    emoji:"🧴", base:true },
+  olive_tree: { name:"Olive Tree", emoji:"🫒", base:true },
+  funky_car:  { name:"Funky Car",  emoji:"🚗", base:true },
+
+  // new crafted elements
+  raw_honey:      { name:"Raw Honey",      emoji:"🍯" },
+  holy_hair:      { name:"Holy Hair",      emoji:"😇" },
+  kendrick_lamar: { name:"Kendrick Lamar", emoji:"🎤" },
+  funky_ehh:      { name:"Funky Ehh",      emoji:"🕺" },
 };
 
 // [ingredientA, ingredientB, result]
@@ -172,6 +186,11 @@ const RECIPES = [
   ["monkey","banana","chimpanzini_bananini"],
   ["crocodile","plane","bombardiro_crocodilo"],
   ["elephant","palm_tree","lirili_larila"],
+
+  ["cookieking","bee","raw_honey"],
+  ["clavicular","hair","holy_hair"],
+  ["mango_fruit","mustard","kendrick_lamar"],
+  ["olive_tree","funky_car","funky_ehh"],
 ];
 
 const BASE_IDS = Object.keys(ELEMENTS).filter(id => ELEMENTS[id].base);
@@ -265,7 +284,7 @@ function playUIClickSound(){
    BACKGROUND MUSIC
    Plays a looping track quietly in the background. The volume slider and
    track picker (☰) are always visible. Redeeming the "strawberry" code adds
-   a second, secret track (niche_bg_music.mp3) to the picker — it's simply
+   a second, secret track (music/niche_bg_music.mp3) to the picker — it's simply
    invisible in the list until unlocked. Browsers block autoplay-with-sound
    until the user has interacted with the page at least once, so we try to
    play immediately and, if that's blocked, start on the first click/keydown
@@ -276,8 +295,11 @@ const MUSIC_TRACK_KEY = "brainrotAlchemyMusicTrack";
 const UNLOCKED_TRACKS_KEY = "brainrotAlchemyUnlockedMusicTracks";
 
 const MUSIC_TRACKS = [
-  { id:"default", name:"Default", file:"bg_music.mp3", emoji:"🎵", secret:false },
-  { id:"niche",   name:"DJ Niche Mix", file:"niche_bg_music.mp3", emoji:"🍓", secret:true },
+  { id:"default",  name:"Default",    file:"music/bg_music.mp3",     emoji:"🎵", secret:false },
+  { id:"default2", name:"Default #2", file:"music/bg_music_2.mp3",   emoji:"🎶", secret:false },
+  { id:"default3", name:"Default #3", file:"music/bg_music_3.mp3",   emoji:"🎼", secret:false },
+  { id:"niche",    name:"DJ Niche Mix", file:"music/niche_bg_music.mp3", emoji:"🍓", secret:true },
+  { id:"mangomix", name:"Mango Mix",    file:"music/niche_bg_2.mp3",     emoji:"🥭", secret:true },
 ];
 
 const bgMusic = document.getElementById("bgMusic");
@@ -396,7 +418,7 @@ function renderTracksList(){
    only grow upward from a flat baseline; color follows the active theme
    automatically via the --magenta CSS variable.
    ========================================================================= */
-const VIZ_BAR_COUNT = 24;
+const VIZ_BAR_COUNT = 48;
 const musicVisualizerEl = document.getElementById("musicVisualizer");
 let vizBars = [];
 let vizAnalyser = null;
@@ -1084,10 +1106,11 @@ const THEME_STORAGE_KEY = "brainrotAlchemyTheme";
 const UNLOCKED_THEMES_KEY = "brainrotAlchemyUnlockedThemes";
 
 const THEMES = [
-  { id:"purple", name:"Purple",    swatch:"linear-gradient(135deg, #150a21, #ff2e9a)", secret:false },
-  { id:"dark",   name:"Dark Grey", swatch:"linear-gradient(135deg, #17181b, #5ec8ff)", secret:false },
-  { id:"white",  name:"White",     swatch:"linear-gradient(135deg, #ffffff, #e91e8c)", secret:false },
-  { id:"mango",  name:"Mango",     swatch:"linear-gradient(135deg, #1f1004, #ff8a1e)", secret:true  },
+  { id:"purple",     name:"Purple",     swatch:"linear-gradient(135deg, #150a21, #ff2e9a)", secret:false, emoji:"🟣" },
+  { id:"dark",       name:"Dark Grey",  swatch:"linear-gradient(135deg, #17181b, #5ec8ff)", secret:false, emoji:"⚫" },
+  { id:"white",      name:"White",      swatch:"linear-gradient(135deg, #ffffff, #e91e8c)", secret:false, emoji:"⚪" },
+  { id:"mango",      name:"Mango",      swatch:"linear-gradient(135deg, #1f1004, #ff8a1e)", secret:true,  emoji:"🥭" },
+  { id:"strawberry", name:"Strawberry", swatch:"linear-gradient(135deg, #3a1420, #ff3860)", secret:true,  emoji:"🍓" },
 ];
 
 let currentTheme = "purple";
@@ -1107,11 +1130,13 @@ function loadThemeState(){
 }
 
 function applyTheme(themeId){
-  document.body.classList.remove("theme-dark", "theme-white", "theme-mango");
+  document.body.classList.remove("theme-dark", "theme-white", "theme-mango", "theme-strawberry");
   if(themeId !== "purple") document.body.classList.add("theme-" + themeId);
   currentTheme = themeId;
   try{ localStorage.setItem(THEME_STORAGE_KEY, themeId); }catch(e){}
-  toggleMangoRain(themeId === "mango");
+  if(themeId === "mango") startRain("🥭");
+  else if(themeId === "strawberry") startRain("🍓");
+  else stopRain();
 }
 
 const themeModal = $("#theme-modal");
@@ -1134,7 +1159,7 @@ function renderThemeList(){
     row.className = "theme-row" + (currentTheme === t.id ? " active" : "");
     row.innerHTML = `
       <div class="theme-swatch" style="background:${t.swatch}"></div>
-      <div class="theme-name">${t.name}${t.secret ? " 🥭" : ""}</div>
+      <div class="theme-name">${t.name}${t.secret ? " " + t.emoji : ""}</div>
       <div class="theme-check">${currentTheme === t.id ? "✅" : ""}</div>
     `;
     row.addEventListener("click", ()=>{
@@ -1180,9 +1205,14 @@ function redeemCode(){
       unlockedThemes.push("mango");
       try{ localStorage.setItem(UNLOCKED_THEMES_KEY, JSON.stringify(unlockedThemes)); }catch(e){}
     }
-    playAchievementSound();
+    if(!unlockedTracks.includes("mangomix")){
+      unlockedTracks.push("mangomix");
+      try{ localStorage.setItem(UNLOCKED_TRACKS_KEY, JSON.stringify(unlockedTracks)); }catch(e){}
+    }
+    setMusicTrack("mangomix");
     applyTheme("mango");
-    codesMessage.textContent = "🥭 Mango theme unlocked and applied!";
+    playAchievementSound();
+    codesMessage.textContent = "🥭 Mango theme unlocked and applied, plus a new track in the ☰ picker!";
     codesMessage.className = "codes-message success";
   } else if(raw === "unlockall"){
     discovered = new Set(Object.keys(ELEMENTS));
@@ -1199,9 +1229,14 @@ function redeemCode(){
       unlockedTracks.push("niche");
       try{ localStorage.setItem(UNLOCKED_TRACKS_KEY, JSON.stringify(unlockedTracks)); }catch(e){}
     }
+    if(!unlockedThemes.includes("strawberry")){
+      unlockedThemes.push("strawberry");
+      try{ localStorage.setItem(UNLOCKED_THEMES_KEY, JSON.stringify(unlockedThemes)); }catch(e){}
+    }
     setMusicTrack("niche");
+    applyTheme("strawberry");
     playAchievementSound();
-    codesMessage.textContent = "🍓 New track unlocked! Check the ☰ music picker.";
+    codesMessage.textContent = "🍓 Strawberry theme unlocked and applied, plus a new track in the ☰ picker!";
     codesMessage.className = "codes-message success";
   } else {
     codesMessage.textContent = "That code doesn't do anything... yet.";
@@ -1215,48 +1250,46 @@ codeInput.addEventListener("keydown", (e)=>{ if(e.key === "Enter") redeemCode();
 
 
 /* =========================================================================
-   MANGO RAIN (mango theme background effect)
+   THEME RAIN (mango / strawberry background effect)
    ========================================================================= */
-let mangoRainInterval = null;
-let mangoRainContainer = null;
+let rainInterval = null;
+let rainContainer = null;
+let rainEmoji = "🥭";
 
-function ensureMangoContainer(){
-  if(!mangoRainContainer){
-    mangoRainContainer = document.createElement("div");
-    mangoRainContainer.id = "mango-rain";
-    document.body.appendChild(mangoRainContainer);
+function ensureRainContainer(){
+  if(!rainContainer){
+    rainContainer = document.createElement("div");
+    rainContainer.id = "theme-rain";
+    document.body.appendChild(rainContainer);
   }
 }
 
-function spawnMango(){
-  if(!mangoRainContainer) return;
-  const mango = document.createElement("span");
-  mango.className = "mango-drop";
-  mango.textContent = "🥭";
+function spawnRainDrop(){
+  if(!rainContainer) return;
+  const drop = document.createElement("span");
+  drop.className = "rain-drop";
+  drop.textContent = rainEmoji;
   const startSize = 30 + Math.random() * 34; // 30-64px
   const duration = 6 + Math.random() * 5;    // 6-11s
   const left = Math.random() * 96;           // vw
-  mango.style.left = left + "vw";
-  mango.style.fontSize = startSize + "px";
-  mango.style.animationDuration = duration + "s";
-  mangoRainContainer.appendChild(mango);
-  setTimeout(()=> mango.remove(), duration * 1000 + 200);
+  drop.style.left = left + "vw";
+  drop.style.fontSize = startSize + "px";
+  drop.style.animationDuration = duration + "s";
+  rainContainer.appendChild(drop);
+  setTimeout(()=> drop.remove(), duration * 1000 + 200);
 }
 
-function startMangoRain(){
-  if(mangoRainInterval) return;
-  ensureMangoContainer();
-  mangoRainInterval = setInterval(spawnMango, 450);
-  for(let i=0;i<6;i++) setTimeout(spawnMango, i * 150);
+function startRain(emoji){
+  rainEmoji = emoji;
+  if(rainInterval) return;
+  ensureRainContainer();
+  rainInterval = setInterval(spawnRainDrop, 450);
+  for(let i=0;i<6;i++) setTimeout(spawnRainDrop, i * 150);
 }
 
-function stopMangoRain(){
-  if(mangoRainInterval){ clearInterval(mangoRainInterval); mangoRainInterval = null; }
-  if(mangoRainContainer){ mangoRainContainer.remove(); mangoRainContainer = null; }
-}
-
-function toggleMangoRain(on){
-  if(on) startMangoRain(); else stopMangoRain();
+function stopRain(){
+  if(rainInterval){ clearInterval(rainInterval); rainInterval = null; }
+  if(rainContainer){ rainContainer.remove(); rainContainer = null; }
 }
 
 
@@ -1305,11 +1338,106 @@ infoModal.addEventListener("click", (e)=>{ if(e.target === infoModal) infoModal.
 
 
 /* =========================================================================
+   INTERACTIVE WORKSPACE DOTS
+   Replaces the static dotted background with a canvas grid of dots that
+   gently warp away from the mouse — subtle, decorative, purely visual.
+   Color follows the active theme via --ink.
+   ========================================================================= */
+function initWorkspaceDots(){
+  const canvas = document.getElementById("workspace-dots");
+  const wsEl = document.getElementById("workspace");
+  if(!canvas || !wsEl) return;
+  const ctx2d = canvas.getContext("2d");
+
+  const SPACING = 22;
+  const RADIUS = 1.6;
+  const REACH = 100;      // px, how far the mouse influence reaches
+  const MAX_PUSH = 8;     // px, subtle max displacement
+  const EASE = 0.16;
+
+  let dots = [];
+  let mouse = null; // {x,y} in workspace-local coords, or null
+  let dpr = window.devicePixelRatio || 1;
+
+  function resize(){
+    dpr = window.devicePixelRatio || 1;
+    const rect = wsEl.getBoundingClientRect();
+    canvas.width = Math.max(1, Math.round(rect.width * dpr));
+    canvas.height = Math.max(1, Math.round(rect.height * dpr));
+    canvas.style.width = rect.width + "px";
+    canvas.style.height = rect.height + "px";
+    ctx2d.setTransform(dpr, 0, 0, dpr, 0, 0);
+    buildDots(rect.width, rect.height);
+  }
+
+  function buildDots(w, h){
+    dots = [];
+    for(let y = SPACING/2; y < h; y += SPACING){
+      for(let x = SPACING/2; x < w; x += SPACING){
+        dots.push({ bx:x, by:y, ox:0, oy:0 });
+      }
+    }
+  }
+
+  function dotColor(){
+    return getComputedStyle(document.body).getPropertyValue("--ink").trim() || "#f5efff";
+  }
+
+  function frame(){
+    const rect = wsEl.getBoundingClientRect();
+    const w = rect.width, h = rect.height;
+    ctx2d.clearRect(0, 0, w, h);
+    ctx2d.fillStyle = dotColor();
+    ctx2d.globalAlpha = 0.10;
+
+    for(const d of dots){
+      let tx = 0, ty = 0;
+      if(mouse){
+        const dx = d.bx - mouse.x, dy = d.by - mouse.y;
+        const dist = Math.hypot(dx, dy);
+        if(dist < REACH && dist > 0.001){
+          const strength = (1 - dist / REACH) * MAX_PUSH;
+          tx = (dx / dist) * strength;
+          ty = (dy / dist) * strength;
+        }
+      }
+      d.ox += (tx - d.ox) * EASE;
+      d.oy += (ty - d.oy) * EASE;
+      ctx2d.beginPath();
+      ctx2d.arc(d.bx + d.ox, d.by + d.oy, RADIUS, 0, Math.PI * 2);
+      ctx2d.fill();
+    }
+    requestAnimationFrame(frame);
+  }
+
+  wsEl.addEventListener("pointermove", (e)=>{
+    const rect = wsEl.getBoundingClientRect();
+    mouse = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  });
+  wsEl.addEventListener("pointerleave", ()=>{ mouse = null; });
+
+  // A plain "resize" listener misses the moment the workspace goes from
+  // display:none (auth screen) to visible (after login) — ResizeObserver
+  // catches that size change directly, so the dot grid always matches.
+  if(window.ResizeObserver){
+    const ro = new ResizeObserver(()=> resize());
+    ro.observe(wsEl);
+  } else {
+    window.addEventListener("resize", resize);
+  }
+
+  resize();
+  requestAnimationFrame(frame);
+}
+
+
+/* =========================================================================
    INIT
    ========================================================================= */
 (function init(){
   loadThemeState();
   initMusic();
+  initWorkspaceDots();
   if(tryResumeSession()){
     showGameScreen();
   }else{

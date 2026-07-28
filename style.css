@@ -77,6 +77,26 @@ body.theme-mango{
   --glow2: rgba(255,207,92,0.14);
 }
 
+/* ---------- Theme: Strawberry (secret) ---------- */
+body.theme-strawberry{
+  --bg: #3a1420;
+  --bg2: #4a1c2e;
+  --panel: #401826;
+  --ink: #fff0f4;
+  --ink-dim: #e6b0c2;
+  --outline: #200410;
+  --magenta: #ff3860;
+  --lime: #2ecc71;
+  --cyan: #ff6b81;
+  --yellow: #ffd93d;
+  --chip1: #fff0f3;
+  --chip2: #ffe4ea;
+  --chip3: #ffeef5;
+  --chip4: #fff5e8;
+  --glow1: rgba(255,56,96,0.18);
+  --glow2: rgba(46,204,113,0.14);
+}
+
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;height:100%;}
 body{
@@ -105,23 +125,23 @@ body{
   gap:12px;
 }
 
-/* ---------- Mango rain (mango theme only) ---------- */
-#mango-rain{
+/* ---------- Theme rain (mango / strawberry) ---------- */
+#theme-rain{
   position:fixed;
   inset:0;
   overflow:hidden;
   pointer-events:none;
   z-index:50;
 }
-.mango-drop{
+.rain-drop{
   position:absolute;
   top:-60px;
-  animation-name:mangoFall;
+  animation-name:rainFall;
   animation-timing-function:linear;
   animation-fill-mode:forwards;
   will-change:transform, opacity;
 }
-@keyframes mangoFall{
+@keyframes rainFall{
   0%{ transform:translateY(0) scale(1); opacity:1; }
   100%{ transform:translateY(112vh) scale(0.35); opacity:0.4; }
 }
@@ -271,18 +291,17 @@ h1{
 .header-visualizer{
   flex:1;
   min-width:40px;
-  max-width:320px;
   height:34px;
   display:flex;
   align-items:flex-end;
-  justify-content:center;
-  gap:3px;
-  padding:0 12px;
+  gap:2px;
+  padding:0 20px;
   overflow:hidden;
 }
 .viz-bar{
-  width:4px;
-  flex-shrink:0;
+  flex:1 1 0;
+  min-width:2px;
+  max-width:6px;
   height:6%;
   min-height:2px;
   border-radius:3px 3px 0 0;
@@ -370,10 +389,15 @@ main{
   position:absolute;
   inset:0;
   background-color:var(--bg2);
-  background-image: radial-gradient(rgba(245,239,255,0.09) 1.6px, transparent 1.6px);
-  background-size: 22px 22px;
   touch-action:none;
   overflow:hidden;
+}
+
+#workspace-dots{
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
 }
 
 #empty-hint{
@@ -385,6 +409,7 @@ main{
   font-size:14px;
   max-width:280px;
   pointer-events:none;
+  z-index:1;
 }
 #empty-hint span{display:block; font-size:38px; margin-bottom:8px;}
 
