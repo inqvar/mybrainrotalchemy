@@ -123,8 +123,6 @@ body{
   min-height:100vh;
   padding:14px;
   gap:12px;
-  transform-origin:center center;
-  will-change:transform;
 }
 
 /* ---------- Theme rain (mango / strawberry) ---------- */

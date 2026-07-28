@@ -98,10 +98,6 @@ active (same as everything else).
   animated glowing outline, both on the board and in your inventory.
 - **Screen flash** — discovering one of those rare elements triggers a brief
   full-page color pulse in the current theme's accent color.
-- **Bass-reactive zoom** — the whole page subtly scales and tilts in time
-  with the bass of whatever's currently playing, TikTok-edit style. Driven
-  by the same `AnalyserNode` as the header visualizer, so it only kicks in
-  once music is actually connected (see the `file://` note above).
 
 ## Background music
 

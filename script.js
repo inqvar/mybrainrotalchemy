@@ -460,6 +460,7 @@ function renderTracksList(){
    only grow upward from a flat baseline; color follows the active theme
    automatically via the --magenta CSS variable.
    ========================================================================= */
+
 const VIZ_BAR_COUNT = 48;
 const musicVisualizerEl = document.getElementById("musicVisualizer");
 let vizBars = [];
@@ -506,9 +507,6 @@ function connectVisualizer(){
   }
 }
 
-let bassLevel = 0;
-const appEl = document.getElementById("app");
-
 function startVizLoop(){
   if(vizAnimHandle) return;
   function frame(){
@@ -520,18 +518,6 @@ function startVizLoop(){
         const pct = Math.max(6, Math.min(100, (v / 255) * 100 * 1.25));
         bar.style.height = pct + "%";
       });
-
-      // "bassy" TikTok-edit style zoom + tilt punch, driven by the low frequencies
-      const bassBins = Math.min(4, vizDataArray.length);
-      let bassSum = 0;
-      for(let i=0;i<bassBins;i++) bassSum += vizDataArray[i];
-      const bassSample = (bassSum / bassBins) / 255; // 0..1
-      bassLevel = Math.max(bassLevel * 0.86, bassSample); // snappy attack, smooth decay
-      if(appEl){
-        const scale = 1 + bassLevel * 0.035;
-        const rotate = bassLevel * 0.9;
-        appEl.style.transform = `scale(${scale.toFixed(4)}) rotate(${rotate.toFixed(3)}deg)`;
-      }
     }
     vizAnimHandle = requestAnimationFrame(frame);
   }
