@@ -24,7 +24,9 @@ No build step, no server required. Just open `index.html` in a browser.
 Login is **username only, no password**. This is a local prototype, not a
 secure multi-user system — anyone who knows a username can load that save.
 
-- Enter a new username → creates an account with the 6 starter elements.
+- Enter a new username → creates an account with the starter elements (base
+  elements that aren't the result of any recipe — the game will tell you the
+  exact count in the header).
 - Enter an existing username → loads that account's unlocked elements.
 
 Since the app is pure client-side (no server), there's no real disk to write
@@ -83,6 +85,23 @@ The dotted grid inside the workspace is a live canvas, not a static image —
 the dots gently push away from your mouse and ease back when you move away.
 Subtle, decorative, purely visual. Their color follows whichever theme is
 active (same as everything else).
+
+## Visual polish
+
+- **Shockwave ring** — a quick pulse ring at the exact drop point on every
+  successful combine.
+- **Idle breathing** — tokens sitting on the board pulse very gently, each
+  with a randomized offset so they don't all move in sync.
+- **Landing wobble** — dragging a token and dropping it back on the board
+  (without combining) gives it a soft settle instead of a hard stop.
+- **Rarity glow** — endgame elements (the deep-tier combo results) get an
+  animated glowing outline, both on the board and in your inventory.
+- **Screen flash** — discovering one of those rare elements triggers a brief
+  full-page color pulse in the current theme's accent color.
+- **Bass-reactive zoom** — the whole page subtly scales and tilts in time
+  with the bass of whatever's currently playing, TikTok-edit style. Driven
+  by the same `AnalyserNode` as the header visualizer, so it only kicks in
+  once music is actually connected (see the `file://` note above).
 
 ## Background music
 

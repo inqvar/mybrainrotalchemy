@@ -123,6 +123,8 @@ body{
   min-height:100vh;
   padding:14px;
   gap:12px;
+  transform-origin:center center;
+  will-change:transform;
 }
 
 /* ---------- Theme rain (mango / strawberry) ---------- */
@@ -545,7 +547,7 @@ main{
   user-select:none;
   transition:box-shadow .1s ease;
 }
-.token.dragging{cursor:grabbing; box-shadow:6px 6px 0 var(--outline); z-index:999;}
+.token.dragging{cursor:grabbing; box-shadow:6px 6px 0 var(--outline); z-index:999; animation:none !important;}
 .token .emoji{font-size:30px; line-height:1;}
 .token .name{font-size:10px; font-weight:700; text-align:center; line-height:1.15;}
 
@@ -570,6 +572,63 @@ main{
   100%{ transform:scale(0.15) translateY(12px); opacity:0; }
 }
 .token.deleting{ animation:suckIn .25s ease forwards; pointer-events:none; }
+
+/* idle breathing — tokens sitting on the board pulse gently */
+@keyframes tokenBreathe{
+  0%,100%{ transform:scale(1); }
+  50%{ transform:scale(1.025); }
+}
+.token.breathing{ animation:tokenBreathe 3.4s ease-in-out infinite; }
+
+/* landing wobble — a soft settle instead of a hard stop after dragging */
+@keyframes tokenLand{
+  0%{ transform:scale(0.92) rotate(-3deg); }
+  45%{ transform:scale(1.06) rotate(2deg); }
+  75%{ transform:scale(0.97) rotate(-1deg); }
+  100%{ transform:scale(1) rotate(0); }
+}
+.token.landing{ animation:tokenLand .32s ease; }
+
+/* rarity glow — endgame elements get an animated pulse (outline, doesn't clash with the sticker box-shadow) */
+@keyframes rarePulseOutline{
+  0%,100%{ outline:2px solid var(--magenta); outline-offset:2px; filter:drop-shadow(0 0 4px var(--magenta)); }
+  50%{ outline:2px solid var(--yellow); outline-offset:3px; filter:drop-shadow(0 0 10px var(--yellow)); }
+}
+.rare-glow{ animation:rarePulseOutline 2.4s ease-in-out infinite; }
+/* combined animations need to be listed together so they don't override each other */
+.token.breathing.rare-glow{ animation:tokenBreathe 3.4s ease-in-out infinite, rarePulseOutline 2.4s ease-in-out infinite; }
+.token.landing.rare-glow{ animation:tokenLand .32s ease, rarePulseOutline 2.4s ease-in-out infinite; }
+
+/* shockwave ring — pulses out from the drop point on every successful combine */
+.shockwave{
+  position:absolute;
+  width:20px; height:20px;
+  border-radius:50%;
+  border:3px solid var(--magenta);
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+  z-index:6;
+  animation:shockwaveExpand .5s ease-out forwards;
+}
+@keyframes shockwaveExpand{
+  0%{ width:20px; height:20px; opacity:0.85; }
+  100%{ width:150px; height:150px; opacity:0; }
+}
+
+/* screen flash — brief full-page pulse when you discover a rare element */
+.screen-flash{
+  position:fixed; inset:0;
+  background:var(--magenta);
+  opacity:0;
+  pointer-events:none;
+  z-index:150;
+  animation:screenFlashPulse .5s ease-out forwards;
+}
+@keyframes screenFlashPulse{
+  0%{ opacity:0; }
+  15%{ opacity:0.32; }
+  100%{ opacity:0; }
+}
 
 .new-badge{
   position:absolute;

@@ -41,17 +41,18 @@ const ELEMENTS = {
   max_aura:         { name:"Max Aura 9000",    emoji:"🌟" },
 
   // more base elements
-  rank:       { name:"Rank",       emoji:"🏅", base:true },
-  over:       { name:"Over",       emoji:"🚀", base:true },
   genetics:   { name:"Genetics",   emoji:"🧬", base:true },
-  cookie:     { name:"Cookie",     emoji:"🍪", base:true },
-  king:       { name:"King",       emoji:"🤴", base:true },
-  tall:       { name:"Tall",       emoji:"📏", base:true },
-  muscular:   { name:"Muscular",   emoji:"🏋️", base:true },
   rich:       { name:"Rich",       emoji:"💰", base:true },
+  life:       { name:"Life",       emoji:"🌱", base:true },
 
   // more tier 1
   milk_money:   { name:"Milk Money",   emoji:"🫙" },
+  rank:         { name:"Rank",         emoji:"🏅" },
+  over:         { name:"Over",         emoji:"🚀" },
+  cookie:       { name:"Cookie",       emoji:"🍪" },
+  king:         { name:"King",         emoji:"🤴" },
+  tall:         { name:"Tall",         emoji:"📏" },
+  muscular:     { name:"Muscular",     emoji:"🏋️" },
   milky_stacy:  { name:"Milky Stacy",  emoji:"💅" },
   blackpill:    { name:"Blackpill",    emoji:"💊" },
   cookieking:   { name:"Cookieking",   emoji:"🫅" },
@@ -71,11 +72,11 @@ const ELEMENTS = {
   sleep:     { name:"Sleep",     emoji:"😴", base:true },
   larp:      { name:"Larp",      emoji:"🎭", base:true },
   evil:      { name:"Evil",      emoji:"😈", base:true },
-  man:       { name:"Man",       emoji:"🧍", base:true },
   israel:    { name:"Israel",    emoji:"🇮🇱", base:true },
   europe:    { name:"Europe",    emoji:"🌍", base:true },
 
   // new crafted elements
+  man:                 { name:"Man",                  emoji:"🧍" },
   sinister:            { name:"Sinister",             emoji:"🕴️" },
   "333_iq":             { name:"333 IQ",               emoji:"🧠" },
   computer:             { name:"Computer",             emoji:"💻" },
@@ -86,10 +87,10 @@ const ELEMENTS = {
 
   // Clavicular / ASU Frat Leader chain — new bases
   bone:   { name:"Bone",  emoji:"🦴", base:true },
-  pc:     { name:"PC",    emoji:"🖥️", base:true },
   frame:  { name:"Frame", emoji:"🖼️", base:true },
 
   // Clavicular / ASU Frat Leader chain — crafted
+  pc:                  { name:"PC",                 emoji:"🖥️" },
   clavicular:          { name:"Clavicular",          emoji:"🩻" },
   clav_created_org:     { name:"Clav Created .org",   emoji:"🌐" },
   asu_frat_leader:      { name:"ASU Frat Leader",     emoji:"🍺" },
@@ -127,6 +128,18 @@ const ELEMENTS = {
   holy_hair:      { name:"Holy Hair",      emoji:"😇" },
   kendrick_lamar: { name:"Kendrick Lamar", emoji:"🎤" },
   funky_ehh:      { name:"Funky Ehh",      emoji:"🕺" },
+
+  // deep-tier elements (crafted + crafted combos)
+  brainrot_warlords:  { name:"Brainrot Warlords",  emoji:"🌊" },
+  jungle_council:     { name:"Jungle Council",     emoji:"🌴" },
+  sahur_ritual:        { name:"Sahur Ritual",        emoji:"🌘" },
+  golden_mane:         { name:"Golden Mane",         emoji:"✨" },
+  pulitzer_sigma:      { name:"Pulitzer Sigma",      emoji:"🏆" },
+  terminally_online:   { name:"Terminally Online",   emoji:"📵" },
+  panopticon_griddy:   { name:"Panopticon Griddy",   emoji:"👁️" },
+  aura_dance_off:      { name:"Aura Dance Off",      emoji:"💃" },
+  mirror_rizz:         { name:"Mirror Rizz",         emoji:"🪞" },
+  bureaucore:          { name:"Bureaucore",          emoji:"🏛️" },
 };
 
 // [ingredientA, ingredientB, result]
@@ -191,10 +204,39 @@ const RECIPES = [
   ["clavicular","hair","holy_hair"],
   ["mango_fruit","mustard","kendrick_lamar"],
   ["olive_tree","funky_car","funky_ehh"],
+
+  // precursor recipes — these used to be base elements, now they're crafted
+  ["grindset_cash","cp","rank"],
+  ["sigma_grindset","rich","over"],
+  ["raw_milk","sugar_stacy","cookie"],
+  ["rich","baller","king"],
+  ["genetics","gym_milk","tall"],
+  ["gym_milk","sigma_grindset","muscular"],
+  ["genetics","life","man"],
+  ["computer","frame","pc"],
+
+  // deep-tier recipes — combine already-crafted elements for more late-game depth
+  ["tralalero_tralala","bombardiro_crocodilo","brainrot_warlords"],
+  ["chimpanzini_bananini","lirili_larila","jungle_council"],
+  ["tung_tung_tung_sahur","griddy_king","sahur_ritual"],
+  ["raw_honey","holy_hair","golden_mane"],
+  ["kendrick_lamar","gigachad_skibidi","pulitzer_sigma"],
+  ["sussy_baka","doomer","terminally_online"],
+  ["griddy_king","chat_surveillance","panopticon_griddy"],
+  ["max_aura","funky_ehh","aura_dance_off"],
+  ["holy_framemog","rizz_god","mirror_rizz"],
+  ["clav_created_org","eu","bureaucore"],
 ];
 
 const BASE_IDS = Object.keys(ELEMENTS).filter(id => ELEMENTS[id].base);
 const TOTAL_ELEMENTS = Object.keys(ELEMENTS).length;
+
+// endgame / deep-tier elements get a special animated glow + a screen flash on discovery
+const RARE_IDS = new Set([
+  "gigachad_skibidi", "max_aura", "chopped_ahh_foid", "holy_framemog", "kendrick_lamar",
+  "brainrot_warlords", "jungle_council", "sahur_ritual", "golden_mane", "pulitzer_sigma",
+  "terminally_online", "panopticon_griddy", "aura_dance_off", "mirror_rizz", "bureaucore",
+]);
 
 // pairKey -> result   AND   result -> [{have, get}, ...] for extraction
 const comboMap = {};
@@ -464,6 +506,9 @@ function connectVisualizer(){
   }
 }
 
+let bassLevel = 0;
+const appEl = document.getElementById("app");
+
 function startVizLoop(){
   if(vizAnimHandle) return;
   function frame(){
@@ -475,6 +520,18 @@ function startVizLoop(){
         const pct = Math.max(6, Math.min(100, (v / 255) * 100 * 1.25));
         bar.style.height = pct + "%";
       });
+
+      // "bassy" TikTok-edit style zoom + tilt punch, driven by the low frequencies
+      const bassBins = Math.min(4, vizDataArray.length);
+      let bassSum = 0;
+      for(let i=0;i<bassBins;i++) bassSum += vizDataArray[i];
+      const bassSample = (bassSum / bassBins) / 255; // 0..1
+      bassLevel = Math.max(bassLevel * 0.86, bassSample); // snappy attack, smooth decay
+      if(appEl){
+        const scale = 1 + bassLevel * 0.035;
+        const rotate = bassLevel * 0.9;
+        appEl.style.transform = `scale(${scale.toFixed(4)}) rotate(${rotate.toFixed(3)}deg)`;
+      }
     }
     vizAnimHandle = requestAnimationFrame(frame);
   }
@@ -746,7 +803,7 @@ function renderInventory(){
       const el = ELEMENTS[id];
       if(filter && !el.name.toLowerCase().includes(filter)) return;
       const chip = document.createElement("div");
-      chip.className = "chip";
+      chip.className = "chip" + (RARE_IDS.has(id) ? " rare-glow" : "");
       chip.dataset.id = id;
       chip.innerHTML = `<div class="emoji">${el.emoji}</div><div class="name">${el.name}</div>`;
       chip.addEventListener("pointerdown", onChipPointerDown);
@@ -826,8 +883,9 @@ function createToken(id, x, y, animate){
   y = Math.max(4, Math.min(y, wsRect.height - 84));
 
   const el = ELEMENTS[id];
+  const isRare = RARE_IDS.has(id);
   const token = document.createElement("div");
-  token.className = "token" + (animate ? " pop" : "");
+  token.className = "token" + (animate ? " pop" : "") + (isRare ? " rare-glow" : "");
   token.dataset.id = id;
   token.dataset.uid = uidCounter++;
   token.style.left = x+"px";
@@ -836,6 +894,15 @@ function createToken(id, x, y, animate){
   token.innerHTML = `<div class="emoji">${el.emoji}</div><div class="name">${el.name}</div>`;
   workspace.appendChild(token);
   token.addEventListener("pointerdown", onTokenPointerDown);
+
+  // idle breathing kicks in once the pop-in settles, with a randomized offset so
+  // multiple tokens don't all pulse in unison
+  setTimeout(()=>{
+    if(!token.isConnected || token.classList.contains("dragging")) return;
+    token.style.animationDelay = (-(Math.random()*3.4)).toFixed(2) + "s";
+    token.classList.add("breathing");
+  }, animate ? 340 : 20);
+
   return token;
 }
 
@@ -884,6 +951,14 @@ function onTokenPointerDown(e){
     const target = findOverlap(token);
     if(target){
       tryCombine(token, target);
+    } else {
+      // dropped back on the board without combining — soft landing instead of a hard stop
+      token.classList.remove("breathing");
+      token.classList.add("landing");
+      setTimeout(()=>{
+        token.classList.remove("landing");
+        if(token.isConnected) token.classList.add("breathing");
+      }, 330);
     }
   }
   document.addEventListener("pointermove", onMove);
@@ -940,6 +1015,7 @@ function tryCombine(tokenA, tokenB){
 
   const x = (parseFloat(tokenA.style.left) + parseFloat(tokenB.style.left)) / 2;
   const y = (parseFloat(tokenA.style.top) + parseFloat(tokenB.style.top)) / 2;
+  spawnShockwave(x + 43, y + 40);
 
   if(!discovered.has(resultId)){
     discovered.add(resultId);
@@ -954,6 +1030,7 @@ function tryCombine(tokenA, tokenB){
   if(newlyDiscovered){
     playDiscoverySound();
     spawnBadgeAndConfetti(resultToken);
+    if(RARE_IDS.has(resultId)) spawnScreenFlash();
     renderInventory();
     updateCount();
   } else {
@@ -961,6 +1038,22 @@ function tryCombine(tokenA, tokenB){
   }
   persistCurrentUser(discovered, discoveryOrder);
   checkAchievements();
+}
+
+function spawnShockwave(x, y){
+  const ring = document.createElement("div");
+  ring.className = "shockwave";
+  ring.style.left = x + "px";
+  ring.style.top = y + "px";
+  workspace.appendChild(ring);
+  setTimeout(()=> ring.remove(), 520);
+}
+
+function spawnScreenFlash(){
+  const flash = document.createElement("div");
+  flash.className = "screen-flash";
+  document.body.appendChild(flash);
+  setTimeout(()=> flash.remove(), 550);
 }
 
 function maybeShowHint(){
