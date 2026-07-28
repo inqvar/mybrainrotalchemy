@@ -704,7 +704,9 @@ importFile.addEventListener("change", (e)=>{
 });
 
 resetBtn.addEventListener("click", ()=>{
-  if(!confirm("Reset this account's progress? This can't be undone.")) return;
+  if(!confirm("Reset EVERYTHING? This wipes your progress, achievements, redeemed codes, unlocked themes, and unlocked music tracks. This can't be undone.")) return;
+
+  // progress
   discovered = new Set(BASE_IDS);
   discoveryOrder = [];
   earnedAchievements = new Set();
@@ -713,6 +715,22 @@ resetBtn.addEventListener("click", ()=>{
   renderInventory();
   updateCount();
   persistCurrentUser(discovered, discoveryOrder);
+
+  // redeemed codes / unlocks
+  unlockedThemes = [];
+  unlockedTracks = [];
+  try{
+    localStorage.removeItem(UNLOCKED_THEMES_KEY);
+    localStorage.removeItem(UNLOCKED_TRACKS_KEY);
+  }catch(e){}
+
+  // theme + music back to defaults
+  applyTheme("purple");
+  setMusicTrack("default");
+  musicVolume = 35;
+  if(musicVolumeSlider) musicVolumeSlider.value = musicVolume;
+  if(bgMusic) bgMusic.volume = musicVolume / 100;
+  try{ localStorage.setItem(MUSIC_VOLUME_KEY, String(musicVolume)); }catch(e){}
 });
 
 
