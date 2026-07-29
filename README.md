@@ -128,3 +128,5 @@ All elements and recipes live in `ELEMENTS` and `RECIPES` at the top of
 `script.js`. Add a new element to `ELEMENTS`, then add
 `["ingredientA", "ingredientB", "resultId"]` to `RECIPES` — both the combine
 and the extract direction are generated automatically from that one entry.
+
+🔑 ̶s̶̶t̶̶r̶̶a̶̶w̶̶b̶̶e̶̶r̶̶r̶̶y̶ ̶m̶̶a̶̶n̶̶g̶̶o̶ ̶u̶̶n̶̶l̶̶o̶̶c̶̶k̶̶a̶̶l̶̶l̶ 
